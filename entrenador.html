@@ -308,6 +308,7 @@ function rConv(){
     <div class="row"><label class="f" for="inHora">Hora<input type="time" id="inHora" value="${esc(p.hora||c.hora||"")}"></label>
     <label class="f" for="inNota" style="flex:1 1 14em">Aviso para os xogadores<input id="inNota" maxlength="140" placeholder="Sen aviso" value="${esc(notaDe(c))}"></label>
     <button class="btn ghost" data-a="saveMatch" style="align-self:flex-end">Gardar hora e aviso</button></div>
+    <div class="row"><a class="wa" href="${waLink(askText(c))}" target="_blank" rel="noopener">${WA_SVG}Pedir asistencia</a><span class="note">Mensaxe para o grupo co partido, a hora e a ligazón para marcar se van. Garda antes a hora.</span></div>
     <p class="note">Por defecto o aviso é quedar 45 minutos antes no campo. Podes cambialo ou borralo para este partido.</p></div>`;
   h+=`<div class="chips"><span class="chip ok">${pr.avail.length} van</span>${tarde.length?`<span class="chip gold">${tarde.length} chegan tarde</span>`:""}${antes.length?`<span class="chip gold">${antes.length} marchan antes</span>`:""}<span class="chip no">${no.length} non van</span>${pend.length?`<span class="chip">${pend.length} sen responder</span>`:""}</div>`;
   h+=`<div class="panel"><div class="row between"><h3>Asistencia</h3><button class="btn ghost sm" data-a="reload">Actualizar</button></div>
@@ -321,7 +322,7 @@ function rConv(){
     ${pr.out.length?`<h3>Descansan</h3><div class="shirts">${pr.out.map(j=>shirt(j,true,c.fecha)).join("")}</div>
     <p class="note">Toca un que descansa para metelo como fixo; sairá o seguinte na rotación.</p>
     <ul class="list">${pr.out.map(j=>`<li><span class="name">${esc(corto(j.nombre))}</span><span class="stat">${reason(j,pr.C,pr.lastPub)}</span></li>`).join("")}</ul>`:""}
-    <div class="row"><a class="wa" href="${waLink(waText(c))}" target="_blank" rel="noopener">${WA_SVG}Enviar polo WhatsApp</a><button class="btn ghost" data-a="copy">Copiar texto</button>
+    <div class="row"><a class="wa" href="${waLink(waText(c))}" target="_blank" rel="noopener">${WA_SVG}Enviar convocatoria</a><button class="btn ghost" data-a="copy">Copiar texto</button>
     ${UI.confirm?`<span class="note">Os xogadores verán esta lista na páxina principal.</span><button class="btn" data-a="pubYes">Si, publicar</button><button class="btn ghost" data-a="pubNo">Cancelar</button>`
       :`<button class="btn" data-a="pub" ${pr.inn.length&&apiReady()?"":"disabled"}>${pub?"Publicar de novo":"Publicar convocatoria"}</button>${pub?`<button class="btn ghost" data-a="unpub">Retirar</button>`:""}`}</div>
     ${UI.copy?`<label class="f" for="copyBox">Selecciona e copia<textarea id="copyBox" readonly>${esc(UI.copy)}</textarea></label>`:""}</div>`;
@@ -369,6 +370,14 @@ function rAju(){
     <p class="muted">A asistencia, as convocatorias publicadas, a hora e os avisos gárdanse na folla de Google e véos todo o mundo ao momento. As aliñacións, goles e tarxetas saen das actas da federación e actualízanse cando se suben os arquivos novos a GitHub. Se entra un xogador novo, hai que engadilo aos datos da plantilla para que apareza.</p></div>`;
 }
 
+function askText(c){
+  const p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
+  let t=`*TOMIÑO F.C. VETERANOS*\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\nComo chegar: ${c.maps}\n`;
+  if(notaDe(c)) t+=`\n${notaDe(c)}\n`;
+  avisos(c).forEach(a=>t+="⚠️ "+a+"\n");
+  t+=`\n👉 Marca se vas: ${SITE}`;
+  return t;
+}
 function waText(c){
   const pr=proposal(c), p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
   const s=n=>{ const e=av(c.fecha,n); return e==="tarde"?" (chega tarde)":e==="antes"?" (marcha antes)":""; };
