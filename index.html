@@ -174,7 +174,7 @@ function notaPorDefecto(hora){
    "__defecto__" na primeira liña = quedada automática, que se recalcula se cambia a hora */
 function avisoDe(c){ const p=SHARED.partidos[c.fecha]; const hora=(p&&p.hora)||c.hora||"";
   if(!p||!p.notaGardada) return {quedada:notaPorDefecto(hora),extra:""};
-  const l=String(p.nota).split("\n"); return {quedada:l[0]==="__defecto__"?notaPorDefecto(hora):l[0], extra:l.slice(1).join("\n").trim()}; }
+  const l=String(p.nota).split("\n"); return {quedada:(l[0]==="__defecto__"||!l[0].trim())?notaPorDefecto(hora):l[0], extra:l.slice(1).join("\n").trim()}; }
 function notaDe(c){ const a=avisoDe(c); return [a.quedada,a.extra].filter(Boolean).join("\n"); }
 
 const API = "https://script.google.com/macros/s/AKfycbwH6hJVLzJNo9zdQ4oOxI2v-zTGJD1noqxFB_fEviRsopyzJBtejyStfWm074axXtz-uQ/exec";

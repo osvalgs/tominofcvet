@@ -247,7 +247,7 @@ function notaPorDefecto(hora){
    "__defecto__" na primeira liña = quedada automática, que se recalcula se cambia a hora */
 function avisoDe(c){ const p=SHARED.partidos[c.fecha]; const hora=(p&&p.hora)||c.hora||"";
   if(!p||!p.notaGardada) return {quedada:notaPorDefecto(hora),extra:""};
-  const l=String(p.nota).split("\n"); return {quedada:l[0]==="__defecto__"?notaPorDefecto(hora):l[0], extra:l.slice(1).join("\n").trim()}; }
+  const l=String(p.nota).split("\n"); return {quedada:(l[0]==="__defecto__"||!l[0].trim())?notaPorDefecto(hora):l[0], extra:l.slice(1).join("\n").trim()}; }
 function notaDe(c){ const a=avisoDe(c); return [a.quedada,a.extra].filter(Boolean).join("\n"); }
 
 const API = "https://script.google.com/macros/s/AKfycbwH6hJVLzJNo9zdQ4oOxI2v-zTGJD1noqxFB_fEviRsopyzJBtejyStfWm074axXtz-uQ/exec";
@@ -397,7 +397,7 @@ function rConv(){
     <span class="meta">${esc(fmtD(c.fecha))} · ${esc(c.campo)}${c.superficie?" · "+c.superficie.toLowerCase():""}</span>
     ${avisos(c).map(a=>`<span class="aviso">${esc(a)}</span>`).join("")}<a class="maps" href="${c.maps}" target="_blank" rel="noopener" style="background:var(--grana);color:var(--grana-ink)">${PIN_SVG}Como chegar</a></div>
     <div class="row"><label class="f" for="inHora">Hora<input type="time" id="inHora" value="${esc(p.hora||c.hora||"")}"></label>
-    <label class="f" for="inNota" style="flex:1 1 100%">Aviso de quedada (sae sempre; tócao para cambialo)<textarea id="inNota" maxlength="140" rows="2" placeholder="Sen aviso de quedada" style="resize:vertical;width:100%">${esc(avisoDe(c).quedada)}</textarea></label>
+    <label class="f" for="inNota" style="flex:1 1 100%">Aviso de quedada (sae sempre; tócao para cambialo; se o baleiras volve o de 45 minutos)<textarea id="inNota" maxlength="140" rows="2" placeholder="Sen aviso de quedada" style="resize:vertical;width:100%">${esc(avisoDe(c).quedada)}</textarea></label>
     <label class="f" for="inExtra" style="flex:1 1 100%">Outros avisos (opcional)<textarea id="inExtra" maxlength="200" rows="2" placeholder="Ex.: traede a equipación azul" style="resize:vertical;width:100%">${esc(avisoDe(c).extra)}</textarea></label>
     <button class="btn ghost" data-a="saveMatch" style="align-self:flex-end">Gardar hora e avisos</button></div>
     <div class="row"><a class="wa" href="${waLink(askText(c))}" target="_blank" rel="noopener">${WA_SVG}Pedir asistencia</a><span class="note">Mensaxe para o grupo co partido, a hora e a ligazón para marcar se van. Garda antes a hora.</span></div>
@@ -775,7 +775,7 @@ document.addEventListener("click",async e=>{
   if(a==="unpub"){ await withPin({action:"borrarConvocatoria",fecha:c.fecha},"Convocatoria retirada"); render(); return; }
   if(a==="saveMatch"){ const hora=$("#inHora").value, nota=$("#inNota").value.replace(/\s+/g," ").trim(), extra=$("#inExtra").value.trim(), p=SHARED.partidos[c.fecha]||{};
     const def=nota===notaPorDefecto(p.hora||c.hora||"")||nota===notaPorDefecto(hora);
-    const q=def?"__defecto__":nota, gard=extra?q+"\n"+extra:q;
+    const q=(def||!nota)?"__defecto__":nota, gard=extra?q+"\n"+extra:q;
     await withPin({action:"partido",fecha:c.fecha,hora,nota:gard},"Hora e avisos gardados"); render(); return; }
   if(a==="pinToggle"){ const s=$("#pinShow"), on=s.dataset.on!=="1"; s.dataset.on=on?"1":"0"; s.textContent="PIN: "+(on?L.pin:"••••"); b.textContent=on?"Ocultar":"Amosar"; return; }
   if(a==="changePin"){ const n1=$("#inNew").value.trim(), n2=$("#inNew2").value.trim();
