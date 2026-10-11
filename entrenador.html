@@ -358,7 +358,7 @@ function rConv(){
 
 function outcome(c){ if(!c.resultado) return null; const [a,b]=c.resultado; const us=c.enCasa?a:b, them=c.enCasa?b:a; return {us,them,k:us>them?"W":us<them?"L":"D"}; }
 function rPar(){
-  $("#t-par").innerHTML=DATA.calendario.map(c=>{ const o=outcome(c), m=DATA.partidos.find(p=>p.fecha===c.fecha), open=UI.open[c.fecha];
+  $("#t-par").innerHTML=`<div class="row"><a class="wa" href="${waLink(resultsText())}" target="_blank" rel="noopener">${WA_SVG}Compartir resultados</a></div>`+DATA.calendario.map(c=>{ const o=outcome(c), m=DATA.partidos.find(p=>p.fecha===c.fecha), open=UI.open[c.fecha];
     let det="";
     if(m&&open){ const own=m.goles.filter(g=>g.tipo!=="propia"), og=m.goles.filter(g=>g.tipo==="propia");
       det=`<div class="detail cols"><div><h3>Titulares</h3><ul>${m.titulares.map(x=>`<li>${x.dorsal}. ${esc(corto(x.nombre))}</li>`).join("")}</ul></div>
@@ -432,6 +432,7 @@ function rSeg(){
     <label class="f" for="tAci">Aciertos<textarea id="tAci" data-k="aciertos" rows="3">${esc(d.aciertos)}</textarea></label>
     <label class="f" for="tMel">A mellorar<textarea id="tMel" data-k="mellorar" rows="3">${esc(d.mellorar)}</textarea></label>
     <label class="f" for="tNot">Outras notas<textarea id="tNot" data-k="notas" rows="3">${esc(d.notas)}</textarea></label></div>
+    <div class="row"><a class="wa" href="${waLink(lineupText(c,d))}" target="_blank" rel="noopener" ${d.once.some(Boolean)?"":"hidden"}>${WA_SVG}Compartir aliñación</a>${d.once.some(Boolean)?`<span class="note">Só se envía o sistema, a aliñación e o banco; as notas non.</span>`:""}</div>
     <div class="savebar"><span class="note" id="dirtyNote">${UI.draft.dirty?"Hai cambios sen gardar":SEG[c.fecha]?"Gardado":"Aínda sen gardar"}</span><button class="btn" data-a="segSave" ${SEGOK===true?"":"disabled"}>Gardar seguimento</button></div>`;
   el.innerHTML=h;
 }
@@ -459,7 +460,7 @@ function rJug(){
   const avg=ms.length?Math.round(ms.reduce((s,m)=>s+m.titulares.length+m.suplentes.length,0)/ms.length):0;
   const topMin=rows.slice().sort((a,b)=>b.min-a.min)[0], topGol=rows.slice().sort((a,b)=>b.goles-a.goles)[0];
   const COLS=[["dorsal","Nº","num"],["nombre","Xogador","n"],["convocado","Conv."],["pct","%"],["titular","Tit."],["suplente","Sup."],["min","Min."],["media","Media"],["goles","Goles"],["amarillas","<span class='card y'></span>"],["rojas","<span class='card r'></span>"],["desc","Desc."],["les","Les."]];
-  let h=`<div class="kpis"><div><b>${ms.length}</b><span>partidos xogados</span></div><div><b>${avg}</b><span>convocados de media</span></div>
+  let h=`<div class="row"><a class="wa" href="${waLink(statsText())}" target="_blank" rel="noopener">${WA_SVG}Compartir estatísticas</a></div><div class="kpis"><div><b>${ms.length}</b><span>partidos xogados</span></div><div><b>${avg}</b><span>convocados de media</span></div>
     <div><b>${topGol&&topGol.goles?esc(corto(topGol.nombre)):"–"}</b><span>máximo goleador${topGol&&topGol.goles?" ("+topGol.goles+")":""}</span></div>
     <div><b>${topMin&&topMin.min?esc(corto(topMin.nombre)):"–"}</b><span>máis minutos${topMin&&topMin.min?" ("+topMin.min+")":""}</span></div></div>
     <p class="note">Minutos anotados en ${withMin} de ${ms.length} partidos. Anótaos na pestana Seguimento despois de cada partido.</p>
@@ -474,6 +475,40 @@ function rJug(){
     ${sel.posTop.length?`<p><b>Posicións:</b> ${sel.posTop.join(", ")}</p>`:""}
     <ul class="list">${sel.det.map(x=>`<li><span class="num">X${x.m.jornada}</span><span class="name">${esc(x.m.local==="Tomiño F.C."?"contra "+x.m.visitante:"en "+x.m.local)}<br><span class="note">${x.rol==="T"?"Titular":x.rol==="S"?"Suplente":"Non convocado"}${x.pos?" · "+x.pos:""}${x.min!=null?" · "+x.min+" min":""}${x.goles?" · "+x.goles+" gol"+(x.goles>1?"es":""):""}${x.tar.map(t=>" · "+(t.tipo==="amarilla"?"amarela":t.tipo==="roja"?"vermella":"dobre amarela")+" ("+t.min+"')").join("")}</span></span></li>`).join("")}</ul></div>`;
   $("#t-jug").innerHTML=h;
+}
+
+
+/* ---------- Textos para compartir por WhatsApp ---------- */
+const LINEA=l=>l==="PT"?"Porteiro":/^(LD|LI|DFC|CAD|CAI)$/.test(l)?"Defensa":/^(DC|ED|EI)$/.test(l)?"Diante":"Medio";
+function lineupText(c,d){
+  const pos=SISTEMAS[d.sistema]||SISTEMAS["4-4-2"], g={Porteiro:[],Defensa:[],Medio:[],Diante:[]};
+  pos.forEach(([l,x],i)=>{ const n=d.once[i]; if(n) g[LINEA(l)].push({x,t:(dorsalDe(n)!==""?dorsalDe(n)+" ":"")+corto(n)}); });
+  const sq=squadFor(c), banco=sq.names.filter(n=>!d.once.includes(n));
+  let t=`*TOMIÑO F.C. VETERANOS*\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}\n\n*Aliñación (${d.sistema})*\n`;
+  ["Porteiro","Defensa","Medio","Diante"].forEach(k=>{ if(g[k].length) t+=`${k}: ${g[k].sort((a,b)=>a.x-b.x).map(v=>v.t).join(" · ")}\n`; });
+  if(banco.length) t+=`\n*Banco:* ${banco.map(n=>corto(n)).join(", ")}`;
+  return t;
+}
+function resultsText(){
+  let w=0,dr=0,l=0,gf=0,gc=0, lines=[];
+  DATA.calendario.forEach(c=>{ const o=outcome(c), m=DATA.partidos.find(p=>p.fecha===c.fecha); if(!o) return;
+    o.k==="W"?w++:o.k==="D"?dr++:l++; gf+=o.us; gc+=o.them;
+    const g=m?m.goles.filter(x=>x.tipo!=="propia").map(x=>corto(x.nombre)+" "+x.min+"'"):[];
+    lines.push(`X${c.jornada} ${c.enCasa?"vs":"en"} ${c.rival}: *${o.us}-${o.them}*${g.length?" ("+g.join(", ")+")":""}`); });
+  let t=`*TOMIÑO F.C. VETERANOS · Resultados*\n${w} gañados · ${dr} empatados · ${l} perdidos · goles ${gf}-${gc}\n\n`+lines.join("\n");
+  const nx=nextFixture(); if(nx) t+=`\n\nPróximo: X${nx.jornada} ${nx.enCasa?"contra":"en"} ${nx.rival}, ${fmtD(nx.fecha,{weekday:"long",day:"numeric",month:"long"})}`;
+  return t;
+}
+function statsText(){
+  const rows=playerStats(), n=DATA.partidos.length;
+  const gol=rows.filter(p=>p.goles>0).sort((a,b)=>b.goles-a.goles);
+  let t=`*TOMIÑO F.C. VETERANOS · Estatísticas* (${n} partidos)\n`;
+  if(gol.length) t+=`\n*Goleadores:* ${gol.map(p=>corto(p.nombre)+" "+p.goles).join(", ")}\n`;
+  const hasMin=rows.some(p=>p.min>0);
+  t+=`\n*Xogador · conv. · titular${hasMin?" · min":""}*\n`;
+  rows.slice().sort((a,b)=>b.convocado-a.convocado||(b.min-a.min)||nice(a.nombre).localeCompare(nice(b.nombre),"gl")).forEach(p=>{
+    t+=`${p.dorsal!=null?p.dorsal+". ":""}${corto(p.nombre)}: ${p.convocado}/${n} · ${p.titular}${hasMin?" · "+(p.min||0):""}${p.goles?" · ⚽"+p.goles:""}\n`; });
+  return t.trim();
 }
 
 function rAju(){
