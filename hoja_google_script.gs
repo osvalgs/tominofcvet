@@ -2,11 +2,16 @@
  * Tomiño F.C. Veteranos - almacén compartido de la web
  * Guarda quién va a cada partido, la convocatoria publicada y la hora del partido.
  *
- * 1. Cambia el PIN de abajo por uno que solo sepa el entrenador.
+ * 1. O PIN de abaixo é só o inicial. Despois pódese cambiar desde a web (Axustes),
+ *    e o novo gárdase nas propiedades do script.
  * 2. Implementar > Nueva implementación > Aplicación web
  *    Ejecutar como: Yo · Quién tiene acceso: Cualquier usuario
  */
-const PIN_ENTRENADOR = "1234";
+const PIN_ENTRENADOR = "1234"; // cambia isto polo teu PIN antes de implementar
+
+function pinActual() {
+  return PropertiesService.getScriptProperties().getProperty("PIN") || PIN_ENTRENADOR;
+}
 
 function doGet() {
   return salida(leerTodo());
@@ -20,8 +25,13 @@ function doPost(e) {
     if (b.action === "avail") {
       if (!b.fecha || !b.jugador) return salida({ ok: false, error: "faltan datos" });
       guardar("disponibilidad", ["fecha", "jugador", "estado", "actualizado"], [b.fecha, b.jugador], b.estado ? [b.fecha, b.jugador, b.estado, new Date()] : null);
-    } else if (b.action === "convocatoria" || b.action === "partido" || b.action === "borrarConvocatoria" || b.action === "comprobarPin") {
-      if (String(b.pin) !== PIN_ENTRENADOR) return salida({ ok: false, error: "pin" });
+    } else if (["convocatoria", "partido", "borrarConvocatoria", "comprobarPin", "cambiarPin"].includes(b.action)) {
+      if (String(b.pin) !== pinActual()) return salida({ ok: false, error: "pin" });
+      if (b.action === "cambiarPin") {
+        const novo = String(b.nuevo || "").trim();
+        if (novo.length < 4) return salida({ ok: false, error: "curto" });
+        PropertiesService.getScriptProperties().setProperty("PIN", novo);
+      }
       if (b.action === "convocatoria") {
         guardar("convocatorias", ["fecha", "convocados", "descansan", "actualizado"], [b.fecha], [b.fecha, JSON.stringify(b.convocados || []), JSON.stringify(b.descansan || []), new Date()]);
       } else if (b.action === "borrarConvocatoria") {

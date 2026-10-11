@@ -250,6 +250,7 @@ function waLink(t){ return "https://wa.me/?text="+encodeURIComponent(t); }
 
 const L={tab:"conv",limit:18,pin:"",forced:{},fecha:""};
 try{ Object.assign(L,JSON.parse(localStorage.getItem("tomino_entrenador")||"{}")); }catch(e){}
+L.tab="conv";
 const saveL=()=>{ try{ localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(e){} };
 const UI={confirm:false,copy:"",sortK:"convocado",sortDir:-1,open:{}};
 const pending=()=>DATA.calendario.filter(c=>!playedDates.has(c.fecha));
@@ -362,10 +363,16 @@ function rPar(){
 }
 
 function rAju(){
-  $("#t-aju").innerHTML=`<div class="panel"><h2>PIN do adestrador</h2>
-    <p class="muted">Fai falta para publicar convocatorias e cambiar a hora ou o aviso do partido. Gárdase neste móbil para non ter que escribilo cada vez.</p>
-    <div class="row"><label class="f" for="inPin">PIN<input id="inPin" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" value="${esc(L.pin)}" style="width:8em"></label>
-    <button class="btn" data-a="checkPin" style="align-self:flex-end">Comprobar e gardar</button></div></div>
+  $("#t-aju").innerHTML=`<div class="panel"><h2>Compartir acceso</h2>
+    <p class="muted">Para o segundo adestrador, o delegado ou o coordinador. Envíalle a ligazón e o PIN por WhatsApp nunha mensaxe privada, nunca no grupo.</p>
+    <div class="row"><span class="chip" id="pinShow">PIN: ••••</span><button class="btn ghost sm" data-a="pinToggle">Amosar</button></div>
+    <div class="row"><a class="wa" href="${waLink(`Acceso á zona do adestrador do Tomiño F.C. Veteranos:\n${SITE}entrenador.html\nPIN: ${L.pin}`)}" target="_blank" rel="noopener">${WA_SVG}Compartir polo WhatsApp</a></div></div>
+    <div class="panel"><h2>Cambiar PIN</h2>
+    <p class="muted">O PIN novo vale para todos. Quen tiña o anterior terá que escribir o novo a próxima vez que entre.</p>
+    <div class="row"><label class="f" for="inNew">PIN novo<input id="inNew" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:10em"></label>
+    <label class="f" for="inNew2">Repíteo<input id="inNew2" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:10em"></label>
+    <button class="btn" data-a="changePin" style="align-self:flex-end">Cambiar PIN</button></div>
+    <p class="note">Mínimo 4 caracteres. Distingue maiúsculas e minúsculas.</p></div>
     <div class="panel"><h2>Como se actualiza</h2>
     <p class="muted">A asistencia, as convocatorias publicadas, a hora e os avisos gárdanse na folla de Google e véos todo o mundo ao momento. As aliñacións, goles e tarxetas saen das actas da federación e actualízanse cando se suben os arquivos novos a GitHub. Se entra un xogador novo, hai que engadilo aos datos da plantilla para que apareza.</p></div>`;
 }
@@ -393,7 +400,8 @@ function waText(c){
 async function withPin(body,okMsg){
   if(!L.pin){ L.tab="aju"; render(); toast("Escribe primeiro o PIN do adestrador"); return false; }
   try{ await apiPost({...body,pin:L.pin}); if(okMsg) toast(okMsg); return true; }
-  catch(e){ toast(e&&e.error==="pin"?"PIN incorrecto":"Non se puido gardar. Téntao de novo."); if(e&&e.error==="pin") L.tab="aju"; return false; }
+  catch(e){ if(e&&e.error==="pin"){ L.ok=false; saveL(); $("#app").hidden=true; $("#gate").hidden=false; $("#gMsg").textContent="O PIN cambiou. Escribe o novo."; return false; }
+    toast("Non se puido gardar. Téntao de novo."); return false; }
 }
 
 document.addEventListener("click",async e=>{
@@ -414,6 +422,13 @@ document.addEventListener("click",async e=>{
   if(a==="saveMatch"){ const hora=$("#inHora").value, nota=$("#inNota").value.trim(), p=SHARED.partidos[c.fecha]||{};
     const def=nota===notaPorDefecto(p.hora||c.hora||"")||nota===notaPorDefecto(hora);
     await withPin({action:"partido",fecha:c.fecha,hora,nota:def?"__defecto__":nota},"Hora e aviso gardados"); render(); return; }
+  if(a==="pinToggle"){ const s=$("#pinShow"), on=s.dataset.on!=="1"; s.dataset.on=on?"1":"0"; s.textContent="PIN: "+(on?L.pin:"••••"); b.textContent=on?"Ocultar":"Amosar"; return; }
+  if(a==="changePin"){ const n1=$("#inNew").value.trim(), n2=$("#inNew2").value.trim();
+    if(n1.length<4){ toast("O PIN ten que ter polo menos 4 caracteres"); return; }
+    if(n1!==n2){ toast("Os dous PIN non coinciden"); return; }
+    try{ await apiPost({action:"cambiarPin",pin:L.pin,nuevo:n1}); L.pin=n1; L.ok=true; saveL(); toast("PIN cambiado"); render(); }
+    catch(x){ toast(x&&x.error==="pin"?"O PIN actual non é válido":x&&x.error==="acción desconocida"?"Primeiro hai que actualizar o script da folla de Google":"Non se puido cambiar. Téntao de novo."); }
+    return; }
   if(a==="checkPin"){ L.pin=$("#inPin").value.trim(); saveL(); if(!L.pin) return; await withPin({action:"comprobarPin"},"PIN correcto"); render(); return; }
 });
 document.addEventListener("change",e=>{
@@ -429,7 +444,9 @@ async function entrar(pin){
 $("#gGo").addEventListener("click",()=>{ const p=$("#gPin").value.trim(); if(p) entrar(p); });
 $("#gPin").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#gGo").click(); });
 $("#logout").addEventListener("click",e=>{ e.preventDefault(); L.pin=""; L.ok=false; saveL(); location.reload(); });
-if(L.ok&&L.pin){ $("#app").hidden=false; render(); } else { $("#gate").hidden=false; }
+if(L.ok&&L.pin){ $("#app").hidden=false; render();
+  apiPost({action:"comprobarPin",pin:L.pin}).catch(x=>{ if(x&&x.error==="pin"){ L.ok=false; saveL(); $("#app").hidden=true; $("#gate").hidden=false; $("#gMsg").textContent="O PIN cambiou. Escribe o novo."; } }); }
+else { $("#gate").hidden=false; }
 apiGet().then(()=>{ if(!$("#app").hidden) render(); });
 setInterval(()=>{ if(!$("#app").hidden && !document.hidden && !UI.copy && !UI.confirm && !(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))) apiGet().then(render); },60000);
 </script>
