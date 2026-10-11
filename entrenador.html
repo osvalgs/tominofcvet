@@ -106,7 +106,7 @@ section.tab{display:flex;flex-direction:column;gap:16px}
 .shirt.bench svg path{fill:var(--soft);stroke:var(--line)}
 .shirt.bench text{fill:var(--muted)}
 .pubok{border:2px solid var(--ok)}
-.seg4{display:grid;grid-template-columns:repeat(4,auto);border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
+.seg4{display:grid;grid-template-columns:repeat(5,auto);border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
 .seg4 button{border:0;background:var(--surface);color:var(--muted);font:600 .78rem var(--body);padding:7px 7px;cursor:pointer}
 .seg4 button + button{border-left:1px solid var(--line)}
 .seg4 button.on.va{background:var(--ok);color:#fff}
@@ -182,6 +182,8 @@ textarea{min-height:0}
 .pc-g{grid-template-columns:repeat(4,1fr)}
 .sync.loading{color:var(--grana);font-weight:700;animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.45}}
+.seg4 button.clr{color:var(--no);font-weight:700;padding:7px 9px}
+.seg4 button:disabled{opacity:.35;cursor:default}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -314,7 +316,7 @@ const L={tab:"conv",limit:18,pin:"",forced:{},fecha:""};
 try{ Object.assign(L,JSON.parse(localStorage.getItem("tomino_entrenador")||"{}")); }catch(e){}
 L.tab="conv"; L.fecha="";
 const saveL=()=>{ try{ localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(e){} };
-const UI={clearAsk:false,confirm:false,copy:"",sortK:"convocado",sortDir:-1,open:{},slot:null,draft:null,player:null};
+const UI={avBusy:{},clearAsk:false,confirm:false,copy:"",sortK:"convocado",sortDir:-1,open:{},slot:null,draft:null,player:null};
 const pending=()=>DATA.calendario.filter(c=>!playedDates.has(c.fecha));
 function fx(){ const p=pending(); let c=p.find(x=>x.fecha===L.fecha); if(!c) c=nextFixture()||p[0]||null; return c; }
 
@@ -376,10 +378,10 @@ function rConv(){
     <p class="note">Por defecto o aviso é quedar 45 minutos antes no campo. Podes cambialo ou borralo para este partido.</p></div>`;
   h+=`<div class="chips"><span class="chip ok">${pr.avail.length} van</span>${tarde.length?`<span class="chip gold">${tarde.length} chegan tarde</span>`:""}${antes.length?`<span class="chip gold">${antes.length} marchan antes</span>`:""}<span class="chip no">${no.length} non van</span>${pend.length?`<span class="chip">${pend.length} sen responder</span>`:""}</div>`;
   h+=`<div class="panel"><div class="row between"><h3>Asistencia</h3><div class="row" style="gap:6px"><button class="btn ghost sm" data-a="reload">Actualizar</button><button class="btn ghost sm" data-a="clear">Limpar</button></div></div>
-    <p class="note">Os xogadores márcana desde a páxina principal. Tamén a podes marcar ti por algún deles.</p>
+    <p class="note">Os xogadores márcana desde a páxina principal. Ti podes cambiala por calquera deles ou quitala co ✕; o cambio vese tamén na páxina dos xogadores.</p>
     ${UI.clearAsk?`<div class="row"><span class="note">Borraranse as respostas de todos para este partido.</span><button class="btn sm" data-a="clearYes">Si, limpar</button><button class="btn ghost sm" data-a="clearNo">Cancelar</button></div>`:""}
     <ul class="list">${J.map(j=>{const a=av(c.fecha,j.nombre);return `<li><span class="num">${j.dorsal??""}</span><span class="name">${esc(corto(j.nombre))}</span>
-    <span class="seg4">${[["va","Vai"],["tarde","Tarde"],["antes","Antes"],["no","Non"]].map(([k,l])=>`<button class="${k} ${a===k?"on":""}" data-a="av" data-n="${esc(j.nombre)}" data-v="${k}">${l}</button>`).join("")}</span></li>`}).join("")}</ul></div>`;
+    <span class="seg4">${[["va","Vai"],["tarde","Tarde"],["antes","Antes"],["no","Non"]].map(([k,l])=>`<button class="${k} ${a===k?"on":""}" data-a="av" data-n="${esc(j.nombre)}" data-v="${k}" ${UI.avBusy[j.nombre]?"disabled":""}>${l}</button>`).join("")}<button class="clr" data-a="av" data-n="${esc(j.nombre)}" data-v="" title="Quitar resposta" aria-label="Quitar a resposta de ${esc(corto(j.nombre))}" ${a&&!UI.avBusy[j.nombre]?"":"disabled"}>✕</button></span></li>`}).join("")}</ul></div>`;
   h+=pr.over?`<div class="status over">Van ${pr.avail.length} e o máximo de convocados é ${lim}: descansan ${pr.out.length}. Descansan primeiro os que levan máis convocatorias, e quen descansou a última vez entra seguro.</div>`
     :`<div class="status ok">Van ${pr.avail.length} e o máximo de convocados é ${lim}: entran todos.</div>`;
   h+=`<div class="panel ${pub?"pubok":""}"><div class="row between"><h2>Convocados · ${pr.inn.length}</h2>${pub?`<span class="chip ok">Publicada</span>`:""}</div>
@@ -677,8 +679,11 @@ document.addEventListener("click",async e=>{
   if(a==="closeP"){ UI.player=null; render(); return; }
   if(a==="open"){ UI.open[b.dataset.f]=!UI.open[b.dataset.f]; render(); return; }
   if(a==="reload"){ b.disabled=true; b.textContent="Actualizando…"; await apiGet(); render(); toast(SHARED.error?"Non se puido actualizar: revisa a conexión":"Actualizado"); return; }
-  if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), nx=cur===b.dataset.v?"":b.dataset.v; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
-    try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx}); }catch(x){ SHARED.avail[c.fecha][n]=cur; toast("Non se puido gardar"); } render(); return; }
+  if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), v=b.dataset.v, nx=(v===""||cur===v)?"":v; if(UI.avBusy[n]||nx===cur) return;
+    UI.avBusy[n]=true; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
+    try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx}); toast(corto(n)+": "+(nx?ESTADOS[nx].toLowerCase():"sen resposta")); }
+    catch(x){ SHARED.avail[c.fecha][n]=cur; toast("Non se puido gardar"); }
+    delete UI.avBusy[n]; render(); return; }
   if(a==="force"){ const f=new Set(L.forced[c.fecha]||[]); f.add(b.dataset.n); L.forced[c.fecha]=[...f]; saveL(); render(); return; }
   if(a==="unforce"){ const f=new Set(L.forced[c.fecha]||[]); if(!f.delete(b.dataset.n)) return; L.forced[c.fecha]=[...f]; saveL(); render(); return; }
   if(a==="copy"){ UI.copy=waText(c); try{ await navigator.clipboard.writeText(UI.copy); UI.copy=""; toast("Copiado. Pégao no grupo."); }catch(x){ render(); const t=$("#copyBox"); if(t){t.focus();t.select();} return; } render(); return; }
