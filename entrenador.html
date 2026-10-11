@@ -253,7 +253,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTi
 const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
 /* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
-function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
+function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; if(!/\b(19|20)\d{2}\b/.test(v)||!/(GMT|T\d{2}:|\d{2}:\d{2})/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
 function normHora(v){ v=String(v||""); if(!v||/^\d{1,2}:\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
 function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
@@ -614,6 +614,9 @@ function rAju(){
     <p class="muted">Para o segundo adestrador, o delegado ou o coordinador. Envíalle a ligazón e o PIN por WhatsApp nunha mensaxe privada, nunca no grupo.</p>
     <div class="row"><span class="chip" id="pinShow">PIN: ••••</span><button class="btn ghost sm" data-a="pinToggle">Amosar</button></div>
     <div class="row"><a class="wa" href="${waLink(`Acceso á zona do adestrador do Tomiño F.C. Veteranos:\n${SITE}entrenador.html\nPIN: ${L.pin}`)}" target="_blank" rel="noopener">${WA_SVG}Compartir polo WhatsApp</a></div></div>
+    <div class="panel"><h2>Votación do equipo</h2>
+    <p class="muted">Votación anónima para decidir se imos todos ou se hai un máximo de convocados con rotación. Cada xogador vota desde o seu móbil e o resultado vese cando a peches.</p>
+    <div class="row"><a class="btn" href="votacion.html">Abrir a votación</a><a class="wa" href="${waLink(`*TOMIÑO F.C. VETERANOS · Votación*\nComo facemos as convocatorias? Voto anónimo desde o teu móbil 👉 ${SITE}votacion.html`)}" target="_blank" rel="noopener">${WA_SVG}Enviar ao grupo</a></div></div>
     <div class="panel"><h2>Cambiar PIN</h2>
     <p class="muted">O PIN novo vale para todos. Quen tiña o anterior terá que escribir o novo a próxima vez que entre.</p>
     <div class="row"><label class="f" for="inNew">PIN novo<input id="inNew" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:10em"></label>

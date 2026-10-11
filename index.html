@@ -189,7 +189,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTi
 const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
 /* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
-function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
+function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; if(!/\b(19|20)\d{2}\b/.test(v)||!/(GMT|T\d{2}:|\d{2}:\d{2})/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
 function normHora(v){ v=String(v||""); if(!v||/^\d{1,2}:\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
 function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
