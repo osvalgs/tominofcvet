@@ -1,0 +1,902 @@
+{
+ "temporada": "2026-2027",
+ "competicion": "Veteranos - Primera Galicia (Vigo | 1ª fase grupo 2)",
+ "club": "Tomiño F.C. Veteranos",
+ "nota": "Las actas no registran sustituciones; un suplente cuenta como convocado, no necesariamente como jugado. Desde la jornada 4 cada jugador tiene dorsal fijo.",
+ "partidos": [
+  {
+   "jornada": 1,
+   "fecha": "2026-09-19",
+   "hora": "19:00",
+   "local": "Tomiño F.C.",
+   "visitante": "Mondariz C.F.",
+   "resultado": [
+    2,
+    2
+   ],
+   "estadio": "O Alivio (Tomiño)",
+   "titulares": [
+    {
+     "dorsal": 1,
+     "nombre": "Pereira Crujeiras, Juan Manuel"
+    },
+    {
+     "dorsal": 2,
+     "nombre": "Carnero Amorín, Valentín"
+    },
+    {
+     "dorsal": 3,
+     "nombre": "Treinta Cardoso, Esteban"
+    },
+    {
+     "dorsal": 6,
+     "nombre": "Cardoso Durán, José Ramón"
+    },
+    {
+     "dorsal": 7,
+     "nombre": "Claro Silva, Pablo"
+    },
+    {
+     "dorsal": 8,
+     "nombre": "González López, Francisco Javier"
+    },
+    {
+     "dorsal": 10,
+     "nombre": "Mariño Pereira, Rubén"
+    },
+    {
+     "dorsal": 11,
+     "nombre": "Franco González, Héctor"
+    },
+    {
+     "dorsal": 12,
+     "nombre": "González Silva, Osvaldo"
+    },
+    {
+     "dorsal": 18,
+     "nombre": "Álvarez Rodríguez, Julio"
+    },
+    {
+     "dorsal": 24,
+     "nombre": "Lomba Ferreira, Andrés"
+    }
+   ],
+   "suplentes": [
+    {
+     "dorsal": 13,
+     "nombre": "Puime González, Adrián"
+    },
+    {
+     "dorsal": 9,
+     "nombre": "Román Rúa, Uxío"
+    },
+    {
+     "dorsal": 16,
+     "nombre": "Casal Costas, Manuel Alejandro"
+    },
+    {
+     "dorsal": 17,
+     "nombre": "Melo Magán, Marcelo"
+    },
+    {
+     "dorsal": 19,
+     "nombre": "Lomba Ferreira, Gonzalo"
+    },
+    {
+     "dorsal": 20,
+     "nombre": "Vázquez Carrera, Jacobo"
+    },
+    {
+     "dorsal": 22,
+     "nombre": "Ruiz Seves, Danny"
+    },
+    {
+     "dorsal": 23,
+     "nombre": "Expósito Pereira, Manuel"
+    },
+    {
+     "dorsal": 27,
+     "nombre": "Rodríguez Miranda, Jonatan"
+    }
+   ],
+   "goles": [
+    {
+     "min": "38",
+     "nombre": "Román Rúa, Uxío"
+    },
+    {
+     "min": "67",
+     "nombre": "González López, Francisco Javier"
+    }
+   ],
+   "tarjetas": [
+    {
+     "min": "32",
+     "nombre": "Lomba Ferreira, Gonzalo",
+     "tipo": "amarilla"
+    },
+    {
+     "min": "47",
+     "nombre": "Lomba Ferreira, Gonzalo",
+     "tipo": "doble amarilla"
+    }
+   ],
+   "sustituciones": null
+  },
+  {
+   "jornada": 2,
+   "fecha": "2026-09-26",
+   "hora": "19:00",
+   "local": "C.D. Pontellas",
+   "visitante": "Tomiño F.C.",
+   "resultado": [
+    1,
+    1
+   ],
+   "estadio": "San Campio 2 (Pontellas, O Porriño)",
+   "titulares": [
+    {
+     "dorsal": 13,
+     "nombre": "Puime González, Adrián"
+    },
+    {
+     "dorsal": 3,
+     "nombre": "Bouzada Barbosa, Ismael"
+    },
+    {
+     "dorsal": 5,
+     "nombre": "Mariño Pereira, Rubén"
+    },
+    {
+     "dorsal": 6,
+     "nombre": "González López, Francisco Javier"
+    },
+    {
+     "dorsal": 10,
+     "nombre": "Expósito Pereira, Manuel"
+    },
+    {
+     "dorsal": 11,
+     "nombre": "Carnero Amorín, Valentín"
+    },
+    {
+     "dorsal": 12,
+     "nombre": "Franco González, Héctor"
+    },
+    {
+     "dorsal": 17,
+     "nombre": "Álvarez Rodríguez, Julio"
+    },
+    {
+     "dorsal": 18,
+     "nombre": "Melo Magán, Marcelo"
+    },
+    {
+     "dorsal": 19,
+     "nombre": "Treinta Cardoso, Esteban"
+    },
+    {
+     "dorsal": 23,
+     "nombre": "Cardoso Durán, José Ramón"
+    }
+   ],
+   "suplentes": [
+    {
+     "dorsal": 1,
+     "nombre": "Pereira Crujeiras, Juan Manuel"
+    },
+    {
+     "dorsal": 4,
+     "nombre": "Estévez Agudo, Miguel"
+    },
+    {
+     "dorsal": 7,
+     "nombre": "Vázquez Carrera, Jacobo"
+    },
+    {
+     "dorsal": 14,
+     "nombre": "Ruiz Seves, Danny"
+    },
+    {
+     "dorsal": 15,
+     "nombre": "Claro Silva, Pablo"
+    },
+    {
+     "dorsal": 16,
+     "nombre": "Román Rúa, Uxío"
+    },
+    {
+     "dorsal": 20,
+     "nombre": "Casal Costas, Manuel Alejandro"
+    },
+    {
+     "dorsal": 22,
+     "nombre": "Bouzada López, Aitor"
+    },
+    {
+     "dorsal": 24,
+     "nombre": "González Silva, Osvaldo"
+    }
+   ],
+   "goles": [
+    {
+     "min": "52",
+     "nombre": "Vázquez Carrera, Jacobo"
+    }
+   ],
+   "tarjetas": [
+    {
+     "min": "29",
+     "nombre": "Cardoso Durán, José Ramón",
+     "tipo": "amarilla"
+    }
+   ],
+   "sustituciones": null
+  },
+  {
+   "jornada": 3,
+   "fecha": "2026-10-03",
+   "hora": "16:15",
+   "local": "Tomiño F.C.",
+   "visitante": "O Muiño da Ponte Veteranos",
+   "resultado": [
+    0,
+    3
+   ],
+   "estadio": "O Alivio (Tomiño)",
+   "titulares": [
+    {
+     "dorsal": 1,
+     "nombre": "Pereira Crujeiras, Juan Manuel"
+    },
+    {
+     "dorsal": 6,
+     "nombre": "Cardoso Durán, José Ramón"
+    },
+    {
+     "dorsal": 7,
+     "nombre": "Estévez Agudo, Miguel"
+    },
+    {
+     "dorsal": 11,
+     "nombre": "Bouzada Barbosa, Ismael"
+    },
+    {
+     "dorsal": 15,
+     "nombre": "Mariño Pereira, Rubén"
+    },
+    {
+     "dorsal": 19,
+     "nombre": "Melo Magán, Marcelo"
+    },
+    {
+     "dorsal": 21,
+     "nombre": "Carnero Amorín, Valentín"
+    },
+    {
+     "dorsal": 22,
+     "nombre": "Vázquez Carrera, Jacobo"
+    },
+    {
+     "dorsal": 24,
+     "nombre": "Álvarez Rodríguez, Julio"
+    },
+    {
+     "dorsal": 25,
+     "nombre": "Franco González, Héctor"
+    },
+    {
+     "dorsal": 27,
+     "nombre": "Bouzada López, Aitor"
+    }
+   ],
+   "suplentes": [
+    {
+     "dorsal": 2,
+     "nombre": "Treinta Cardoso, Esteban"
+    },
+    {
+     "dorsal": 3,
+     "nombre": "Casal Costas, Manuel Alejandro"
+    },
+    {
+     "dorsal": 5,
+     "nombre": "González Silva, Osvaldo"
+    },
+    {
+     "dorsal": 8,
+     "nombre": "Expósito Pereira, Manuel"
+    },
+    {
+     "dorsal": 9,
+     "nombre": "Román Rúa, Uxío"
+    },
+    {
+     "dorsal": 10,
+     "nombre": "Claro Silva, Pablo"
+    },
+    {
+     "dorsal": 12,
+     "nombre": "González López, Francisco Javier"
+    },
+    {
+     "dorsal": 14,
+     "nombre": "Lomba Ferreira, Andrés"
+    },
+    {
+     "dorsal": 16,
+     "nombre": "Lomba Ferreira, Gonzalo"
+    }
+   ],
+   "goles": [
+    {
+     "min": "33",
+     "nombre": "Cardoso Durán, José Ramón",
+     "tipo": "propia"
+    }
+   ],
+   "tarjetas": [
+    {
+     "min": "53",
+     "nombre": "Lomba Ferreira, Andrés",
+     "tipo": "amarilla"
+    },
+    {
+     "min": "58",
+     "nombre": "González López, Francisco Javier",
+     "tipo": "amarilla"
+    }
+   ],
+   "sustituciones": null
+  },
+  {
+   "jornada": 4,
+   "fecha": "2026-10-10",
+   "hora": "19:30",
+   "local": "Gondomar C.F.",
+   "visitante": "Tomiño F.C.",
+   "resultado": [
+    4,
+    2
+   ],
+   "estadio": "Municipal As Gaiandas (Gondomar)",
+   "titulares": [
+    {
+     "dorsal": 1,
+     "nombre": "Pereira Crujeiras, Juan Manuel"
+    },
+    {
+     "dorsal": 5,
+     "nombre": "González Silva, Osvaldo"
+    },
+    {
+     "dorsal": 6,
+     "nombre": "Cardoso Durán, José Ramón"
+    },
+    {
+     "dorsal": 7,
+     "nombre": "Estévez Agudo, Miguel"
+    },
+    {
+     "dorsal": 15,
+     "nombre": "Mariño Pereira, Rubén"
+    },
+    {
+     "dorsal": 19,
+     "nombre": "Melo Magán, Marcelo"
+    },
+    {
+     "dorsal": 21,
+     "nombre": "Carnero Amorín, Valentín"
+    },
+    {
+     "dorsal": 22,
+     "nombre": "Vázquez Carrera, Jacobo"
+    },
+    {
+     "dorsal": 24,
+     "nombre": "Álvarez Rodríguez, Julio"
+    },
+    {
+     "dorsal": 25,
+     "nombre": "Franco González, Héctor"
+    },
+    {
+     "dorsal": 27,
+     "nombre": "Bouzada López, Aitor"
+    }
+   ],
+   "suplentes": [
+    {
+     "dorsal": 3,
+     "nombre": "Casal Costas, Manuel Alejandro"
+    },
+    {
+     "dorsal": 4,
+     "nombre": "Casal Iglesias, Ignacio"
+    },
+    {
+     "dorsal": 8,
+     "nombre": "Expósito Pereira, Manuel"
+    },
+    {
+     "dorsal": 9,
+     "nombre": "Román Rúa, Uxío"
+    },
+    {
+     "dorsal": 12,
+     "nombre": "González López, Francisco Javier"
+    },
+    {
+     "dorsal": 13,
+     "nombre": "Puime González, Adrián"
+    },
+    {
+     "dorsal": 14,
+     "nombre": "Rodríguez Miranda, Jonatan"
+    },
+    {
+     "dorsal": 16,
+     "nombre": "Lomba Ferreira, Gonzalo"
+    },
+    {
+     "dorsal": 20,
+     "nombre": "Ruiz Seves, Danny"
+    },
+    {
+     "dorsal": 23,
+     "nombre": "Dioz García, Rubén"
+    }
+   ],
+   "goles": [
+    {
+     "min": "5",
+     "nombre": "Bouzada López, Aitor"
+    },
+    {
+     "min": "57",
+     "nombre": "Román Rúa, Uxío"
+    }
+   ],
+   "tarjetas": [
+    {
+     "min": "12",
+     "nombre": "Cardoso Durán, José Ramón",
+     "tipo": "amarilla"
+    },
+    {
+     "min": "45+1",
+     "nombre": "Estévez Agudo, Miguel",
+     "tipo": "amarilla"
+    },
+    {
+     "min": "59",
+     "nombre": "Carnero Amorín, Valentín",
+     "tipo": "amarilla"
+    },
+    {
+     "min": "73",
+     "nombre": "Rodríguez Miranda, Jonatan",
+     "tipo": "roja"
+    }
+   ],
+   "sustituciones": null
+  }
+ ],
+ "plantilla": [
+  {
+   "nombre": "Bouzada Barbosa, Ismael",
+   "convocado": 2,
+   "titular": 2,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": null
+  },
+  {
+   "nombre": "Bouzada López, Aitor",
+   "convocado": 3,
+   "titular": 2,
+   "suplente": 1,
+   "goles": 1,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 27
+  },
+  {
+   "nombre": "Cardoso Durán, José Ramón",
+   "convocado": 4,
+   "titular": 4,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 2,
+   "rojas": 0,
+   "dorsal": 6
+  },
+  {
+   "nombre": "Carnero Amorín, Valentín",
+   "convocado": 4,
+   "titular": 4,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 1,
+   "rojas": 0,
+   "dorsal": 21
+  },
+  {
+   "nombre": "Casal Costas, Manuel Alejandro",
+   "convocado": 4,
+   "titular": 0,
+   "suplente": 4,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 3
+  },
+  {
+   "nombre": "Casal Iglesias, Ignacio",
+   "convocado": 1,
+   "titular": 0,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 4
+  },
+  {
+   "nombre": "Claro Silva, Pablo",
+   "convocado": 3,
+   "titular": 1,
+   "suplente": 2,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": null
+  },
+  {
+   "nombre": "Dioz García, Rubén",
+   "convocado": 1,
+   "titular": 0,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 23
+  },
+  {
+   "nombre": "Estévez Agudo, Miguel",
+   "convocado": 3,
+   "titular": 2,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 1,
+   "rojas": 0,
+   "dorsal": 7
+  },
+  {
+   "nombre": "Expósito Pereira, Manuel",
+   "convocado": 4,
+   "titular": 1,
+   "suplente": 3,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 8
+  },
+  {
+   "nombre": "Franco González, Héctor",
+   "convocado": 4,
+   "titular": 4,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 25
+  },
+  {
+   "nombre": "González López, Francisco Javier",
+   "convocado": 4,
+   "titular": 2,
+   "suplente": 2,
+   "goles": 1,
+   "amarillas": 1,
+   "rojas": 0,
+   "dorsal": 12
+  },
+  {
+   "nombre": "González Silva, Osvaldo",
+   "convocado": 4,
+   "titular": 2,
+   "suplente": 2,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 5
+  },
+  {
+   "nombre": "Lomba Ferreira, Andrés",
+   "convocado": 2,
+   "titular": 1,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 1,
+   "rojas": 0,
+   "dorsal": null
+  },
+  {
+   "nombre": "Lomba Ferreira, Gonzalo",
+   "convocado": 3,
+   "titular": 0,
+   "suplente": 3,
+   "goles": 0,
+   "amarillas": 2,
+   "rojas": 1,
+   "dorsal": 16
+  },
+  {
+   "nombre": "Mariño Pereira, Rubén",
+   "convocado": 4,
+   "titular": 4,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 15
+  },
+  {
+   "nombre": "Melo Magán, Marcelo",
+   "convocado": 4,
+   "titular": 3,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 19
+  },
+  {
+   "nombre": "Pereira Crujeiras, Juan Manuel",
+   "convocado": 4,
+   "titular": 3,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 1
+  },
+  {
+   "nombre": "Puime González, Adrián",
+   "convocado": 3,
+   "titular": 1,
+   "suplente": 2,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 13
+  },
+  {
+   "nombre": "Rodríguez Miranda, Jonatan",
+   "convocado": 2,
+   "titular": 0,
+   "suplente": 2,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 1,
+   "dorsal": 14
+  },
+  {
+   "nombre": "Román Rúa, Uxío",
+   "convocado": 4,
+   "titular": 0,
+   "suplente": 4,
+   "goles": 2,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 9
+  },
+  {
+   "nombre": "Ruiz Seves, Danny",
+   "convocado": 3,
+   "titular": 0,
+   "suplente": 3,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 20
+  },
+  {
+   "nombre": "Treinta Cardoso, Esteban",
+   "convocado": 3,
+   "titular": 2,
+   "suplente": 1,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": null
+  },
+  {
+   "nombre": "Vázquez Carrera, Jacobo",
+   "convocado": 4,
+   "titular": 2,
+   "suplente": 2,
+   "goles": 1,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 22
+  },
+  {
+   "nombre": "Álvarez Rodríguez, Julio",
+   "convocado": 4,
+   "titular": 4,
+   "suplente": 0,
+   "goles": 0,
+   "amarillas": 0,
+   "rojas": 0,
+   "dorsal": 24
+  }
+ ],
+ "cuerpoTecnico": [
+  {
+   "nombre": "Pousa Martínez, Rafael",
+   "rol": "Entrenador (en el acta figura como delegado de equipo)"
+  },
+  {
+   "nombre": "Álvarez Rodríguez, José Luis",
+   "rol": "Entrenador (en el acta figura como otros técnicos)"
+  }
+ ],
+ "fase": "1ª fase, grupo 2 (9 jornadas, una sola vuelta)",
+ "calendario": [
+  {
+   "jornada": 1,
+   "fecha": "2026-09-19",
+   "hora": "19:00",
+   "local": "Tomiño F.C.",
+   "visitante": "Mondariz C.F.",
+   "rival": "Mondariz C.F.",
+   "enCasa": true,
+   "campo": "O Alivio (Tomiño)",
+   "superficie": "Hierba artificial",
+   "direccion": "San Benito, s/n, Tomiño",
+   "camisetaRival": "blanca y azul",
+   "resultado": [
+    2,
+    2
+   ],
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20O%20Alivio%2C%20San%20Benito%2C%20s/n%2C%20Tomi%C3%B1o"
+  },
+  {
+   "jornada": 2,
+   "fecha": "2026-09-26",
+   "hora": "19:00",
+   "local": "C.D. Pontellas",
+   "visitante": "Tomiño F.C.",
+   "rival": "C.D. Pontellas",
+   "enCasa": false,
+   "campo": "San Campio 2 (Pontellas)",
+   "superficie": "Hierba artificial",
+   "direccion": "Pontellas, O Porriño",
+   "camisetaRival": "azul y granate",
+   "resultado": [
+    1,
+    1
+   ],
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20San%20Campio%202%2C%20Pontellas%2C%20O%20Porri%C3%B1o"
+  },
+  {
+   "jornada": 3,
+   "fecha": "2026-10-03",
+   "hora": "16:15",
+   "local": "Tomiño F.C.",
+   "visitante": "O Muiño da Ponte Veteranos",
+   "rival": "O Muiño da Ponte Veteranos",
+   "enCasa": true,
+   "campo": "O Alivio (Tomiño)",
+   "superficie": "Hierba artificial",
+   "direccion": "San Benito, s/n, Tomiño",
+   "camisetaRival": "fucsia",
+   "resultado": [
+    0,
+    3
+   ],
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20O%20Alivio%2C%20San%20Benito%2C%20s/n%2C%20Tomi%C3%B1o"
+  },
+  {
+   "jornada": 4,
+   "fecha": "2026-10-10",
+   "hora": "19:30",
+   "local": "Gondomar C.F.",
+   "visitante": "Tomiño F.C.",
+   "rival": "Gondomar C.F.",
+   "enCasa": false,
+   "campo": "Municipal As Gaiandas (Gondomar)",
+   "superficie": "Hierba artificial",
+   "direccion": "Av. Campo da Feira, s/n, Gondomar",
+   "camisetaRival": "blanca y azul",
+   "resultado": [
+    4,
+    2
+   ],
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20Municipal%20As%20Gaiandas%2C%20Av.%20Campo%20da%20Feira%2C%20s/n%2C%20Gondomar"
+  },
+  {
+   "jornada": 5,
+   "fecha": "2026-10-17",
+   "hora": null,
+   "local": "CD Veteranos Ribadetea",
+   "visitante": "Tomiño F.C.",
+   "rival": "CD Veteranos Ribadetea",
+   "enCasa": false,
+   "campo": "A Barxela (Ribadetea, Ponteareas)",
+   "superficie": "Tierra",
+   "direccion": "Lugar a Barxela, 40, Ponteareas",
+   "camisetaRival": "azul",
+   "resultado": null,
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20A%20Barxela%2C%20Lugar%20a%20Barxela%2C%2040%2C%20Ponteareas"
+  },
+  {
+   "jornada": 6,
+   "fecha": "2026-10-24",
+   "hora": null,
+   "local": "Tomiño F.C.",
+   "visitante": "S.D. As de Copas",
+   "rival": "S.D. As de Copas",
+   "enCasa": true,
+   "campo": "O Alivio (Tomiño)",
+   "superficie": "Hierba artificial",
+   "direccion": "San Benito, s/n, Tomiño",
+   "camisetaRival": "negra",
+   "resultado": null,
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20O%20Alivio%2C%20San%20Benito%2C%20s/n%2C%20Tomi%C3%B1o"
+  },
+  {
+   "jornada": 7,
+   "fecha": "2026-10-31",
+   "hora": null,
+   "local": "C.D. Veteranos Progresista de Fornelos da Ribeira",
+   "visitante": "Tomiño F.C.",
+   "rival": "C.D. Veteranos Progresista de Fornelos da Ribeira",
+   "enCasa": false,
+   "campo": "Oural (Salvaterra de Miño)",
+   "superficie": "Hierba artificial",
+   "direccion": "Fornelos, Salvaterra de Miño",
+   "camisetaRival": "roja y blanca",
+   "resultado": null,
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20Oural%2C%20Fornelos%2C%20Salvaterra%20de%20Mi%C3%B1o"
+  },
+  {
+   "jornada": 8,
+   "fecha": "2026-11-07",
+   "hora": null,
+   "local": "Tomiño F.C.",
+   "visitante": "Veteranos Mougas",
+   "rival": "Veteranos Mougas",
+   "enCasa": true,
+   "campo": "O Alivio (Tomiño)",
+   "superficie": "Hierba artificial",
+   "direccion": "San Benito, s/n, Tomiño",
+   "camisetaRival": "azul",
+   "resultado": null,
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20O%20Alivio%2C%20San%20Benito%2C%20s/n%2C%20Tomi%C3%B1o"
+  },
+  {
+   "jornada": 9,
+   "fecha": "2026-11-14",
+   "hora": null,
+   "local": "Caldelas C.D.",
+   "visitante": "Tomiño F.C.",
+   "rival": "Caldelas C.D.",
+   "enCasa": false,
+   "campo": "Foxo (Caldelas)",
+   "superficie": "Hierba artificial",
+   "direccion": "Caldelas de Tui",
+   "camisetaRival": "roja",
+   "resultado": null,
+   "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20Foxo%2C%20Caldelas%20de%20Tui"
+  }
+ ],
+ "equipacion": {
+  "primera": "roja (camiseta, pantalón y medias)",
+  "segunda": "azul turquesa, pantalón negro"
+ }
+}
