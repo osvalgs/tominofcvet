@@ -1,0 +1,21 @@
+{
+ "name": "Tomiño F.C. Veteranos",
+ "short_name": "Tomiño Vet.",
+ "start_url": "./",
+ "display": "standalone",
+ "background_color": "#4f0c0a",
+ "theme_color": "#8a1712",
+ "lang": "gl",
+ "icons": [
+  {
+   "src": "icono_192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icono_512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

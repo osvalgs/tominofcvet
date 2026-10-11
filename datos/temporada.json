@@ -1,8 +1,8 @@
 {
  "temporada": "2026-2027",
- "competicion": "Veteranos - Primera Galicia (Vigo | 1ª fase grupo 2)",
+ "competicion": "Veteranos - Primeira Galicia (Vigo | 1ª fase grupo 2)",
  "club": "Tomiño F.C. Veteranos",
- "nota": "Las actas no registran sustituciones; un suplente cuenta como convocado, no necesariamente como jugado. Desde la jornada 4 cada jugador tiene dorsal fijo.",
+ "nota": "As actas non rexistran substitucións; un suplente conta como convocado, non necesariamente como xogado. Desde a xornada 4 cada xogador ten dorsal fixo.",
  "partidos": [
   {
    "jornada": 1,
@@ -738,14 +738,14 @@
  "cuerpoTecnico": [
   {
    "nombre": "Pousa Martínez, Rafael",
-   "rol": "Entrenador (en el acta figura como delegado de equipo)"
+   "rol": "Adestrador"
   },
   {
    "nombre": "Álvarez Rodríguez, José Luis",
-   "rol": "Entrenador (en el acta figura como otros técnicos)"
+   "rol": "Adestrador"
   }
  ],
- "fase": "1ª fase, grupo 2 (9 jornadas, una sola vuelta)",
+ "fase": "1ª fase, grupo 2 (9 xornadas, a unha soa volta)",
  "calendario": [
   {
    "jornada": 1,
@@ -756,9 +756,9 @@
    "rival": "Mondariz C.F.",
    "enCasa": true,
    "campo": "O Alivio (Tomiño)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "San Benito, s/n, Tomiño",
-   "camisetaRival": "blanca y azul",
+   "camisetaRival": "branca e azul",
    "resultado": [
     2,
     2
@@ -774,9 +774,9 @@
    "rival": "C.D. Pontellas",
    "enCasa": false,
    "campo": "San Campio 2 (Pontellas)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "Pontellas, O Porriño",
-   "camisetaRival": "azul y granate",
+   "camisetaRival": "azul e granate",
    "resultado": [
     1,
     1
@@ -792,7 +792,7 @@
    "rival": "O Muiño da Ponte Veteranos",
    "enCasa": true,
    "campo": "O Alivio (Tomiño)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "San Benito, s/n, Tomiño",
    "camisetaRival": "fucsia",
    "resultado": [
@@ -810,9 +810,9 @@
    "rival": "Gondomar C.F.",
    "enCasa": false,
    "campo": "Municipal As Gaiandas (Gondomar)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "Av. Campo da Feira, s/n, Gondomar",
-   "camisetaRival": "blanca y azul",
+   "camisetaRival": "branca e azul",
    "resultado": [
     4,
     2
@@ -828,7 +828,7 @@
    "rival": "CD Veteranos Ribadetea",
    "enCasa": false,
    "campo": "A Barxela (Ribadetea, Ponteareas)",
-   "superficie": "Tierra",
+   "superficie": "Terra",
    "direccion": "Lugar a Barxela, 40, Ponteareas",
    "camisetaRival": "azul",
    "resultado": null,
@@ -843,7 +843,7 @@
    "rival": "S.D. As de Copas",
    "enCasa": true,
    "campo": "O Alivio (Tomiño)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "San Benito, s/n, Tomiño",
    "camisetaRival": "negra",
    "resultado": null,
@@ -858,9 +858,9 @@
    "rival": "C.D. Veteranos Progresista de Fornelos da Ribeira",
    "enCasa": false,
    "campo": "Oural (Salvaterra de Miño)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "Fornelos, Salvaterra de Miño",
-   "camisetaRival": "roja y blanca",
+   "camisetaRival": "vermella e branca",
    "resultado": null,
    "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20Oural%2C%20Fornelos%2C%20Salvaterra%20de%20Mi%C3%B1o"
   },
@@ -873,7 +873,7 @@
    "rival": "Veteranos Mougas",
    "enCasa": true,
    "campo": "O Alivio (Tomiño)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "San Benito, s/n, Tomiño",
    "camisetaRival": "azul",
    "resultado": null,
@@ -888,15 +888,15 @@
    "rival": "Caldelas C.D.",
    "enCasa": false,
    "campo": "Foxo (Caldelas)",
-   "superficie": "Hierba artificial",
+   "superficie": "Herba artificial",
    "direccion": "Caldelas de Tui",
-   "camisetaRival": "roja",
+   "camisetaRival": "vermella",
    "resultado": null,
    "maps": "https://www.google.com/maps/search/?api=1&query=Campo%20de%20f%C3%BAtbol%20Foxo%2C%20Caldelas%20de%20Tui"
   }
  ],
  "equipacion": {
-  "primera": "roja (camiseta, pantalón y medias)",
-  "segunda": "azul turquesa, pantalón negro"
+  "primera": "vermella (camiseta, calzón e medias)",
+  "segunda": "azul turquesa, calzón negro"
  }
 }
