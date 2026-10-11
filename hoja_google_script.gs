@@ -8,6 +8,8 @@
  *    Ejecutar como: Yo · Quién tiene acceso: Cualquier usuario
  */
 const PIN_ENTRENADOR = "1234"; // cambia isto polo teu PIN antes de implementar
+// ID do formulario plantilla co deseño do club (cabeceira e cores). Baleiro = formulario sen deseño.
+const PLANTILLA_FORMULARIO = "";
 
 function pinActual() {
   return PropertiesService.getScriptProperties().getProperty("PIN") || PIN_ENTRENADOR;
@@ -139,7 +141,17 @@ function crearVotacion(b) {
   const ata = Number(b.ata);
   if (!b.pregunta || opcions.length < 2 || !ata) throw new Error("datos da votación incompletos");
   const ataTxt = Utilities.formatDate(new Date(ata), "Europe/Madrid", "dd/MM/yyyy 'ás' HH:mm");
-  const form = FormApp.create("Tomiño F.C. Veteranos · Votación");
+  let form;
+  if (PLANTILLA_FORMULARIO) {
+    /* Copiar a plantilla mantén a cabeceira co escudo e as cores do club */
+    const copia = DriveApp.getFileById(PLANTILLA_FORMULARIO).makeCopy("Tomiño F.C. Veteranos · Votación " + Utilities.formatDate(new Date(), "Europe/Madrid", "dd-MM-yyyy"));
+    form = FormApp.openById(copia.getId());
+    form.getItems().forEach(it => form.deleteItem(it));
+    try { form.deleteAllResponses(); } catch (e) {}
+    form.setTitle("Tomiño F.C. Veteranos · Votación");
+  } else {
+    form = FormApp.create("Tomiño F.C. Veteranos · Votación");
+  }
   form.setDescription("Votación anónima do equipo. Só se pode votar unha vez por persoa. Pecha o " + ataTxt + ".");
   form.setCollectEmail(false);
   form.setLimitOneResponsePerUser(true);
@@ -149,6 +161,7 @@ function crearVotacion(b) {
   form.setProgressBar(false);
   form.setConfirmationMessage("Grazas! O teu voto quedou gardado de forma anónima. O resultado verase na páxina do equipo cando peche a votación.");
   form.setCustomClosedFormMessage("Esta votación xa está pechada. Mira o resultado na páxina do equipo.");
+  form.setAcceptingResponses(true);
   form.addMultipleChoiceItem().setTitle(String(b.pregunta)).setChoiceValues(opcions).setRequired(true);
   try { if (form.setPublished) form.setPublished(true); } catch (e) {}
   ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === "pecharVotacionAuto").forEach(t => ScriptApp.deleteTrigger(t));
@@ -193,6 +206,7 @@ function estadoVotacion() {
 /* Executar unha vez desde o editor para dar permiso a crear formularios e avisos programados */
 function autorizar() {
   FormApp.getActiveForm();
+  DriveApp.getRootFolder();
   ScriptApp.getProjectTriggers();
   CacheService.getScriptCache();
   Logger.log("Permisos concedidos");
