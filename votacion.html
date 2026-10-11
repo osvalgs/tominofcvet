@@ -143,7 +143,12 @@ function notaPorDefecto(hora){
   if(/^\d{1,2}:\d{2}$/.test(hora||"")){ const [h,m]=hora.split(":").map(Number); const t=h*60+m-MIN_ANTES; return `Quedamos ${MIN_ANTES} minutos antes no campo (ás ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")})`; }
   return `Quedamos ${MIN_ANTES} minutos antes no campo`;
 }
-function notaDe(c){ const p=SHARED.partidos[c.fecha]; const hora=(p&&p.hora)||c.hora||""; return p&&p.notaGardada ? p.nota : notaPorDefecto(hora); }
+/* O aviso garda dúas partes: a quedada (por defecto, 45 min antes) e outros avisos opcionais, separadas por un salto de liña.
+   "__defecto__" na primeira liña = quedada automática, que se recalcula se cambia a hora */
+function avisoDe(c){ const p=SHARED.partidos[c.fecha]; const hora=(p&&p.hora)||c.hora||"";
+  if(!p||!p.notaGardada) return {quedada:notaPorDefecto(hora),extra:""};
+  const l=String(p.nota).split("\n"); return {quedada:l[0]==="__defecto__"?notaPorDefecto(hora):l[0], extra:l.slice(1).join("\n").trim()}; }
+function notaDe(c){ const a=avisoDe(c); return [a.quedada,a.extra].filter(Boolean).join("\n"); }
 
 const API = "https://script.google.com/macros/s/AKfycbwH6hJVLzJNo9zdQ4oOxI2v-zTGJD1noqxFB_fEviRsopyzJBtejyStfWm074axXtz-uQ/exec";
 const $=s=>document.querySelector(s);
@@ -218,7 +223,7 @@ function heroNext(el,c,extra){
     <span class="vs">${esc(vsText(c))}</span>
     <span class="meta"><b>${esc(fmtD(c.fecha))}</b> · ${hora?"<b>"+esc(hora)+" h</b>":"hora por confirmar"}</span>
     <span class="meta">${esc(c.campo)}${c.superficie?" · "+c.superficie.toLowerCase():""}</span>
-    ${notaDe(c)?`<span class="nota">${esc(notaDe(c))}</span>`:""}
+    ${notaDe(c).split("\n").filter(Boolean).map(n=>`<span class="nota">${esc(n)}</span>`).join("")}
     ${avisos(c).map(a=>`<span class="aviso">${esc(a)}</span>`).join("")}
     <a class="maps" href="${c.maps}" target="_blank" rel="noopener">${PIN_SVG}Como chegar</a>${extra||""}`;
 }
