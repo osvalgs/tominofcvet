@@ -400,7 +400,7 @@ function rConv(){
     <label class="f" for="inNota" style="flex:1 1 100%">Aviso de quedada (sae sempre; tócao para cambialo; se o baleiras volve o de 45 minutos)<textarea id="inNota" maxlength="140" rows="2" placeholder="Sen aviso de quedada" style="resize:vertical;width:100%">${esc(avisoDe(c).quedada)}</textarea></label>
     <label class="f" for="inExtra" style="flex:1 1 100%">Outros avisos (opcional)<textarea id="inExtra" maxlength="200" rows="2" placeholder="Ex.: traede a equipación azul" style="resize:vertical;width:100%">${esc(avisoDe(c).extra)}</textarea></label>
     <button class="btn ghost" data-a="saveMatch" style="align-self:flex-end">Gardar hora e avisos</button></div>
-    <div class="row"><a class="wa" href="${waLink(askText(c))}" target="_blank" rel="noopener">${WA_SVG}Pedir asistencia</a><span class="note">Mensaxe para o grupo co partido, a hora e a ligazón para marcar se van. Garda antes a hora.</span></div>
+    <div class="row"><a class="wa" href="${waLink(askText(c))}" target="_blank" rel="noopener">${WA_SVG}Pedir asistencia</a><a class="wa" href="${waLink(locText(c))}" target="_blank" rel="noopener">${WA_SVG}Enviar ubicación</a><span class="note">Pedir asistencia: mensaxe co partido, a hora, os avisos e a ligazón para marcar se van (garda antes a hora). Enviar ubicación: mensaxe aparte só co campo, para que WhatsApp amose a vista previa do mapa.</span></div>
     <p class="note">A quedada xa vén escrita (45 minutos antes) e calcúlase coa hora. Engade outros avisos só se fan falta e preme Gardar.</p></div>`;
   h+=`<div class="chips"><span class="chip ok">${pr.avail.length} van</span>${tarde.length?`<span class="chip gold">${tarde.length} chegan tarde</span>`:""}${antes.length?`<span class="chip gold">${antes.length} marchan antes</span>`:""}<span class="chip no">${no.length} non van</span>${pend.length?`<span class="chip">${pend.length} sen responder</span>`:""}</div>`;
   h+=`<div class="panel"><div class="row between"><h3>Asistencia</h3><div class="row" style="gap:6px"><button class="btn ghost sm" data-a="reload">Actualizar</button><button class="btn ghost sm" data-a="clear">Limpar</button></div></div>
@@ -688,13 +688,14 @@ function rAju(){
     <p class="muted">A asistencia, as convocatorias publicadas, a hora e os avisos gárdanse na folla de Google e véos todo o mundo ao momento. As aliñacións, goles e tarxetas saen das actas da federación e actualízanse cando se suben os arquivos novos a GitHub. Se entra un xogador novo, hai que engadilo aos datos da plantilla para que apareza.</p></div>`;
 }
 
+/* WhatsApp só fai vista previa da primeira ligazón: a do mapa vai nunha mensaxe propia */
+function locText(c){ return `📍 *${c.campo}*\n${c.maps}`; }
 function askText(c){
   const p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
   let t=`*TOMIÑO F.C. VETERANOS*\n👉 Marca se vas: ${SITE}\n\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\n`;
   if(notaDe(c)) t+=`${notaDe(c)}\n`;
   avisos(c).forEach(a=>t+="⚠️ "+a+"\n");
-  t+=`\nComo chegar: ${c.maps}`;
-  return t;
+  return t.trimEnd();
 }
 function waText(c){
   const pr=proposal(c), p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
