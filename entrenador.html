@@ -302,7 +302,7 @@ function rConv(){
   const tarde=J.filter(j=>av(c.fecha,j.nombre)==="tarde"), antes=J.filter(j=>av(c.fecha,j.nombre)==="antes");
   let h=`<div class="panel"><div class="row">
     <label class="f" for="inFx" style="flex:1 1 14em">Partido<select id="inFx">${pending().map(x=>`<option value="${x.fecha}" ${x.fecha===c.fecha?"selected":""}>X${x.jornada} · ${fmtD(x.fecha,{day:"numeric",month:"short"})} · ${x.enCasa?"contra ":"en "}${esc(x.rival)}</option>`).join("")}</select></label>
-    <label class="f" for="inLimit">Máximo<input type="number" id="inLimit" min="11" max="30" value="${lim}" style="width:5em"></label></div>
+    <label class="f" for="inLimit">Máximo de convocados<input type="number" id="inLimit" min="11" max="30" value="${lim}" style="width:6em"></label></div>
     <div class="next" style="background:var(--soft);color:var(--ink);border-color:var(--line)"><span class="vs" style="font-size:1.3rem">${esc(vsText(c))}</span>
     <span class="meta">${esc(fmtD(c.fecha))} · ${esc(c.campo)}${c.superficie?" · "+c.superficie.toLowerCase():""}</span>
     ${avisos(c).map(a=>`<span class="aviso">${esc(a)}</span>`).join("")}<a class="maps" href="${c.maps}" target="_blank" rel="noopener" style="background:var(--grana);color:var(--grana-ink)">${PIN_SVG}Como chegar</a></div>
@@ -316,8 +316,8 @@ function rConv(){
     <p class="note">Os xogadores márcana desde a páxina principal. Tamén a podes marcar ti por algún deles.</p>
     <ul class="list">${J.map(j=>{const a=av(c.fecha,j.nombre);return `<li><span class="num">${j.dorsal??""}</span><span class="name">${esc(corto(j.nombre))}</span>
     <span class="seg4">${[["va","Vai"],["tarde","Tarde"],["antes","Antes"],["no","Non"]].map(([k,l])=>`<button class="${k} ${a===k?"on":""}" data-a="av" data-n="${esc(j.nombre)}" data-v="${k}">${l}</button>`).join("")}</span></li>`}).join("")}</ul></div>`;
-  h+=pr.over?`<div class="status over">Van ${pr.avail.length} e o máximo é ${lim}: descansan ${pr.out.length}. Descansan primeiro os que levan máis convocatorias, e quen descansou a última vez entra seguro.</div>`
-    :`<div class="status ok">Van ${pr.avail.length} e o máximo é ${lim}: entran todos.</div>`;
+  h+=pr.over?`<div class="status over">Van ${pr.avail.length} e o máximo de convocados é ${lim}: descansan ${pr.out.length}. Descansan primeiro os que levan máis convocatorias, e quen descansou a última vez entra seguro.</div>`
+    :`<div class="status ok">Van ${pr.avail.length} e o máximo de convocados é ${lim}: entran todos.</div>`;
   h+=`<div class="panel ${pub?"pubok":""}"><div class="row between"><h2>Convocados · ${pr.inn.length}</h2>${pub?`<span class="chip ok">Publicada</span>`:""}</div>
     ${pr.inn.length?`<div class="shirts">${pr.inn.map(j=>shirt(j,false,c.fecha)).join("")}</div>`:`<p class="muted">Aínda non confirmou ninguén.</p>`}
     ${pr.out.length?`<h3>Descansan</h3><div class="shirts">${pr.out.map(j=>shirt(j,true,c.fecha)).join("")}</div>
