@@ -355,7 +355,8 @@ function rConv(){
   const p=SHARED.partidos[c.fecha]||{}, pr=proposal(c), lim=Number(L.limit)||18, pub=SHARED.convocatorias.find(x=>x.fecha===c.fecha);
   const J=jugadores(), pend=J.filter(j=>!av(c.fecha,j.nombre)), no=J.filter(j=>av(c.fecha,j.nombre)==="no");
   const tarde=J.filter(j=>av(c.fecha,j.nombre)==="tarde"), antes=J.filter(j=>av(c.fecha,j.nombre)==="antes");
-  let h=`<div class="panel"><div class="row">
+  let h=`<div class="row between refresh"><span class="sync">${esc(syncText())}</span><button class="btn sm" data-a="reload">↻ Actualizar</button></div>
+  <div class="panel"><div class="row">
     <label class="f" for="inFx" style="flex:1 1 14em">Partido<select id="inFx">${pending().map(x=>`<option value="${x.fecha}" ${x.fecha===c.fecha?"selected":""}>X${x.jornada} · ${fmtD(x.fecha,{day:"numeric",month:"short"})} · ${x.enCasa?"contra ":"en "}${esc(x.rival)}</option>`).join("")}</select></label>
     <label class="f" for="inLimit">Máximo de convocados<input type="number" id="inLimit" min="11" max="30" value="${lim}" style="width:6em"></label></div>
     <div class="next" style="background:var(--soft);color:var(--ink);border-color:var(--line)"><span class="vs" style="font-size:1.3rem">${esc(vsText(c))}</span>
@@ -668,7 +669,7 @@ document.addEventListener("click",async e=>{
   if(a==="pcard"){ UI.player=UI.player===b.dataset.p?null:b.dataset.p; render(); const f2=$("#ficha"); if(f2&&UI.player) f2.scrollIntoView({behavior:"smooth",block:"start"}); return; }
   if(a==="closeP"){ UI.player=null; render(); return; }
   if(a==="open"){ UI.open[b.dataset.f]=!UI.open[b.dataset.f]; render(); return; }
-  if(a==="reload"){ await apiGet(); render(); toast("Actualizado"); return; }
+  if(a==="reload"){ b.disabled=true; b.textContent="Actualizando…"; await apiGet(); render(); toast(SHARED.error?"Non se puido actualizar: revisa a conexión":"Actualizado"); return; }
   if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), nx=cur===b.dataset.v?"":b.dataset.v; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
     try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx}); }catch(x){ SHARED.avail[c.fecha][n]=cur; toast("Non se puido gardar"); } render(); return; }
   if(a==="force"){ const f=new Set(L.forced[c.fecha]||[]); f.add(b.dataset.n); L.forced[c.fecha]=[...f]; saveL(); render(); return; }
