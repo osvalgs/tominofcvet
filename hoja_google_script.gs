@@ -25,7 +25,7 @@ function doPost(e) {
     if (b.action === "avail") {
       if (!b.fecha || !b.jugador) return salida({ ok: false, error: "faltan datos" });
       guardar("disponibilidad", ["fecha", "jugador", "estado", "actualizado"], [b.fecha, b.jugador], b.estado ? [b.fecha, b.jugador, b.estado, new Date()] : null);
-    } else if (["convocatoria", "partido", "borrarConvocatoria", "comprobarPin", "cambiarPin", "gardarSeguimento", "lerSeguimento"].includes(b.action)) {
+    } else if (["convocatoria", "partido", "borrarConvocatoria", "comprobarPin", "cambiarPin", "gardarSeguimento", "lerSeguimento", "crearVotacion", "pecharVotacion"].includes(b.action)) {
       if (String(b.pin) !== pinActual()) return salida({ ok: false, error: "pin" });
       if (b.action === "cambiarPin") {
         const novo = String(b.nuevo || "").trim();
@@ -40,6 +40,10 @@ function doPost(e) {
         guardar("partidos", ["fecha", "hora", "nota", "actualizado"], [b.fecha], [b.fecha, b.hora || "", b.nota || "", new Date()]);
       } else if (b.action === "gardarSeguimento") {
         guardar("seguimento", ["fecha", "datos", "actualizado"], [b.fecha], [b.fecha, JSON.stringify(b.datos || {}), new Date()]);
+      } else if (b.action === "crearVotacion") {
+        crearVotacion(b);
+      } else if (b.action === "pecharVotacion") {
+        const v = cfgVotacion(); if (v && !v.pechada) pecharVotacion(v);
       }
       const r = leerTodo(); r.ok = true; r.seguimento = lerSeguimento();
       return salida(r);
@@ -48,6 +52,8 @@ function doPost(e) {
     }
     const r = leerTodo(); r.ok = true;
     return salida(r);
+  } catch (err) {
+    return salida({ ok: false, error: String((err && err.message) || err) });
   } finally {
     lock.releaseLock();
   }
@@ -106,7 +112,7 @@ function leerTodo() {
   filas("partidos", ["fecha", "hora", "nota", "actualizado"]).forEach(r => {
     partidos[txt(r[0])] = { hora: txt(r[1]), nota: String(r[2]) };
   });
-  return { avail, convocatorias, partidos };
+  return { avail, convocatorias, partidos, votacion: estadoVotacion() };
 }
 
 /* Notas do adestrador: só se len co PIN, nunca na lectura pública */
@@ -116,6 +122,80 @@ function lerSeguimento() {
     try { s[txt(r[0])] = JSON.parse(r[1] || "{}"); } catch (e) {}
   });
   return s;
+}
+
+/* ---------- Votación en Google Forms ----------
+   Unha resposta por conta de Google e sen recoller o correo: ninguén vota dúas veces
+   e o voto é anónimo, mesmo para quen é dono do formulario. */
+function cfgVotacion() {
+  return JSON.parse(PropertiesService.getScriptProperties().getProperty("VOTACION") || "null");
+}
+function gardarCfgVotacion(v) {
+  PropertiesService.getScriptProperties().setProperty("VOTACION", JSON.stringify(v));
+}
+function crearVotacion(b) {
+  const vella = cfgVotacion(); if (vella && !vella.pechada) pecharVotacion(vella);
+  const opcions = (b.opcions || []).map(String).filter(o => o.trim()).slice(0, 6);
+  const ata = Number(b.ata);
+  if (!b.pregunta || opcions.length < 2 || !ata) throw new Error("datos da votación incompletos");
+  const ataTxt = Utilities.formatDate(new Date(ata), "Europe/Madrid", "dd/MM/yyyy 'ás' HH:mm");
+  const form = FormApp.create("Tomiño F.C. Veteranos · Votación");
+  form.setDescription("Votación anónima do equipo. Só se pode votar unha vez por persoa. Pecha o " + ataTxt + ".");
+  form.setCollectEmail(false);
+  form.setLimitOneResponsePerUser(true);
+  form.setAllowResponseEdits(true);
+  form.setShowLinkToRespondAgain(false);
+  form.setPublishingSummary(false);
+  form.setProgressBar(false);
+  form.setConfirmationMessage("Grazas! O teu voto quedou gardado de forma anónima. O resultado verase na páxina do equipo cando peche a votación.");
+  form.setCustomClosedFormMessage("Esta votación xa está pechada. Mira o resultado na páxina do equipo.");
+  form.addMultipleChoiceItem().setTitle(String(b.pregunta)).setChoiceValues(opcions).setRequired(true);
+  try { if (form.setPublished) form.setPublished(true); } catch (e) {}
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === "pecharVotacionAuto").forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger("pecharVotacionAuto").timeBased().at(new Date(ata)).create();
+  gardarCfgVotacion({ id: form.getId(), url: form.getPublishedUrl(), pregunta: String(b.pregunta), opcions, ata, creada: Date.now(), pechada: false });
+  CacheService.getScriptCache().remove("votos_total");
+}
+function contarVotos(v) {
+  const c = {}; v.opcions.forEach(o => c[o] = 0); let total = 0;
+  try {
+    FormApp.openById(v.id).getResponses().forEach(r => {
+      const it = r.getItemResponses()[0]; if (!it) return;
+      const val = String(it.getResponse()); if (c[val] != null) c[val]++; total++;
+    });
+  } catch (e) {}
+  return { c, total };
+}
+function pecharVotacion(v) {
+  try { FormApp.openById(v.id).setAcceptingResponses(false); } catch (e) {}
+  const r = contarVotos(v);
+  v.pechada = true; v.pechadaEn = Date.now(); v.resultados = r.c; v.total = r.total;
+  gardarCfgVotacion(v);
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === "pecharVotacionAuto").forEach(t => ScriptApp.deleteTrigger(t));
+  return v;
+}
+function pecharVotacionAuto() {
+  const v = cfgVotacion(); if (v && !v.pechada) pecharVotacion(v);
+}
+/* O público ve a pregunta, o prazo e cantos votaron; o resultado só cando está pechada */
+function estadoVotacion() {
+  let v = cfgVotacion(); if (!v) return null;
+  if (!v.pechada && v.ata && Date.now() > v.ata) v = pecharVotacion(v);
+  const out = { pregunta: v.pregunta, opcions: v.opcions, url: v.url, ata: v.ata, creada: v.creada, pechada: !!v.pechada };
+  if (v.pechada) { out.resultados = v.resultados; out.total = v.total; }
+  else {
+    const cache = CacheService.getScriptCache(); let t = cache.get("votos_total");
+    if (t === null) { try { t = String(FormApp.openById(v.id).getResponses().length); } catch (e) { t = "0"; } cache.put("votos_total", t, 60); }
+    out.total = Number(t);
+  }
+  return out;
+}
+/* Executar unha vez desde o editor para dar permiso a crear formularios e avisos programados */
+function autorizar() {
+  FormApp.getActiveForm();
+  ScriptApp.getProjectTriggers();
+  CacheService.getScriptCache();
+  Logger.log("Permisos concedidos");
 }
 
 function salida(obj) {

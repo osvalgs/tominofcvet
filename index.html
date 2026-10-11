@@ -190,7 +190,7 @@ const PIN_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2600); }
 
 /* Almacén compartido (hoja de Google) */
-const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
+const SHARED={avail:{},convocatorias:[],partidos:{},votacion:null,ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
 /* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
 function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; if(!/\b(19|20)\d{2}\b/.test(v)||!/(GMT|T\d{2}:|\d{2}:\d{2})/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
@@ -199,7 +199,7 @@ function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
   const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=av[f]||{}; Object.keys(j.avail[k]).forEach(n=>{ const v=j.avail[k][n]; if(v&&v!=="-") av[f][n]=v; else delete av[f][n]; }); });
   const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||"",notaGardada:j.partidos[k].nota!==undefined&&j.partidos[k].nota!==null&&String(j.partidos[k].nota)!=="__defecto__"}; });
-  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa};
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:j.votacion||null};
 }
 /* Mentres hai gardados en curso non se aplican lecturas que poidan estar atrasadas;
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */
@@ -207,8 +207,8 @@ let PENDING=0, REFETCH=false;
 let onShared=()=>{};
 /* Copia local da última lectura: amósase ao momento mentres chega a da folla */
 const CACHE_KEY="tomino_cache_v1";
-function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,at:Date.now()})); }catch(e){} }
-(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},stale:true}); } }catch(e){} })();
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,votacion:SHARED.votacion,at:Date.now()})); }catch(e){} }
+(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},votacion:c.votacion||null,stale:true}); } }catch(e){} })();
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
   try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json();

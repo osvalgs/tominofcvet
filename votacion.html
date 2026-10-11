@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Votación Tomiño F.C. Veteranos</title>
-<meta name="description" content="Votación anónima do equipo: imos todos ou poñemos un máximo de convocados con rotación?">
+<meta name="description" content="Votación anónima do equipo. Unha soa vez por persoa.">
 <meta property="og:title" content="Tomiño F.C. Veteranos · Votación do equipo">
-<meta property="og:description" content="Imos todos ou poñemos un máximo de convocados con rotación? Voto anónimo desde o teu móbil.">
+<meta property="og:description" content="Vota de forma anónima desde o teu móbil. Só se pode votar unha vez.">
 <meta property="og:image" content="https://osvalgs.github.io/tominofcvet/escudo_og.jpg">
 <meta property="og:url" content="https://osvalgs.github.io/tominofcvet/votacion.html">
 <meta name="theme-color" content="#8a1712">
@@ -97,28 +97,28 @@ label.f{min-width:0;max-width:100%}
 label.f select{width:100%;max-width:100%;min-width:0;text-overflow:ellipsis}
 .row>*{min-width:0;max-width:100%}
 
-.opts{display:grid;gap:12px}
-.opt{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:14px;align-items:stretch;background:var(--surface);border:2px solid var(--line);border-radius:14px;overflow:hidden}
-.opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.opt .l{font:700 2.2rem var(--display);display:grid;place-items:center;width:62px;flex:none;background:var(--soft);color:var(--grana)}
-.opt .t{padding:12px 14px 12px 0;display:flex;flex-direction:column;gap:4px;min-width:0}
-.opt .t b{font-size:1.08rem}
-.opt .t span{color:var(--muted);text-align:justify}
-.opt.mine{border-color:var(--grana)}
-.opt.mine .l{background:var(--grana);color:var(--grana-ink)}
-.opt[aria-disabled="true"]{cursor:default;opacity:.7}
-.big{font:700 2.4rem var(--display);line-height:1;color:var(--grana)}
-.res{display:grid;gap:14px}
-.ritem{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;font-variant-numeric:tabular-nums}
-.ritem .l{font:700 1.6rem var(--display);color:var(--grana);width:1.2em}
-.ritem .n{font:700 1.6rem var(--display)}
-.ritem .bar{grid-column:1/-1;height:14px;background:var(--soft);border-radius:7px;overflow:hidden}
-.ritem .bar i{display:block;height:100%;background:var(--grana);border-radius:7px;transition:width .6s ease}
-.ritem.win .bar i{background:var(--gold)} .ritem.win .l{color:var(--gold)}
+.q{font:600 1.5rem var(--display);line-height:1.2;text-transform:none;margin:0;text-wrap:balance}
+.optlist{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.optlist li{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border-radius:10px;padding:10px 12px}
+.optlist li b{font:700 1.2rem var(--display);color:var(--grana);width:1.2em;flex:none;line-height:1.2}
+.votebtn{display:flex;justify-content:center;align-items:center;gap:10px;background:var(--grana);color:var(--grana-ink);text-decoration:none;font:700 1.25rem var(--display);text-transform:uppercase;letter-spacing:.04em;border-radius:14px;padding:16px}
+.count{display:flex;align-items:baseline;gap:10px}
+.count b{font:700 2.4rem var(--display);color:var(--grana);line-height:1}
 .state{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:4px 12px;font-weight:700;font-size:.9rem}
 .state.open{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
 .state.closed{background:var(--grana);color:var(--grana-ink)}
-details.coach summary{cursor:pointer;color:var(--muted);font-weight:600}
+.deadline{font-weight:700}
+.res{display:grid;gap:14px}
+.ritem{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;font-variant-numeric:tabular-nums}
+.ritem .l{font:700 1.5rem var(--display);color:var(--grana);width:1.2em}
+.ritem .n{font:700 1.5rem var(--display)}
+.ritem .bar{grid-column:1/-1;height:14px;background:var(--soft);border-radius:7px;overflow:hidden}
+.ritem .bar i{display:block;height:100%;background:var(--grana);border-radius:7px;transition:width .6s ease}
+.ritem.win .bar i{background:var(--gold)} .ritem.win .l{color:var(--gold)}
+textarea{width:100%;min-height:90px}
+.coach{border:2px dashed var(--line)}
+.coach summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.coach[open]{border-style:solid;border-color:var(--grana)}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -129,16 +129,14 @@ footer a{color:var(--muted)}
 </section>
 <main>
   <div id="banner"></div>
-  <div class="panel"><div class="row between"><h2>Como facemos as convocatorias?</h2><span id="state"></span></div>
-    <p class="muted">O voto é anónimo: non se garda o teu nome. Cada móbil vota unha vez e podes cambiar o voto mentres a votación estea aberta. O resultado vese cando o adestrador a peche.</p>
-    <div class="opts" id="opts"></div>
-    <p class="note" id="mine"></p>
-  </div>
-  <div class="panel" id="result"></div>
-  <details class="panel coach"><summary>Zona do adestrador</summary>
-    <p class="note">Co PIN do adestrador podes pechar a votación para amosar o resultado, volver abrila ou empezar unha votación nova.</p>
-    <div class="row"><label class="f" for="inPin">PIN<input id="inPin" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:9em"></label></div>
-    <div class="row" id="coachBtns"></div>
+  <div class="panel" id="main"></div>
+  <details class="panel coach" id="coach"><summary>Zona do adestrador · preparar votación</summary>
+    <div id="gate">
+      <p class="note">Escribe o PIN do adestrador para preparar ou pechar votacións.</p>
+      <div class="row"><label class="f" for="inPin">PIN<input id="inPin" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:10em"></label>
+      <button class="btn" id="pinGo" style="align-self:flex-end">Entrar</button></div>
+    </div>
+    <div id="cpanel" hidden></div>
   </details>
 </main>
 <footer><span class="sync" id="sync">Cargando…</span><a href="index.html">Páxina do equipo</a></footer>
@@ -175,7 +173,7 @@ const PIN_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2600); }
 
 /* Almacén compartido (hoja de Google) */
-const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
+const SHARED={avail:{},convocatorias:[],partidos:{},votacion:null,ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
 /* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
 function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; if(!/\b(19|20)\d{2}\b/.test(v)||!/(GMT|T\d{2}:|\d{2}:\d{2})/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
@@ -184,7 +182,7 @@ function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
   const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=av[f]||{}; Object.keys(j.avail[k]).forEach(n=>{ const v=j.avail[k][n]; if(v&&v!=="-") av[f][n]=v; else delete av[f][n]; }); });
   const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||"",notaGardada:j.partidos[k].nota!==undefined&&j.partidos[k].nota!==null&&String(j.partidos[k].nota)!=="__defecto__"}; });
-  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa};
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:j.votacion||null};
 }
 /* Mentres hai gardados en curso non se aplican lecturas que poidan estar atrasadas;
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */
@@ -192,8 +190,8 @@ let PENDING=0, REFETCH=false;
 let onShared=()=>{};
 /* Copia local da última lectura: amósase ao momento mentres chega a da folla */
 const CACHE_KEY="tomino_cache_v1";
-function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,at:Date.now()})); }catch(e){} }
-(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},stale:true}); } }catch(e){} })();
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,votacion:SHARED.votacion,at:Date.now()})); }catch(e){} }
+(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},votacion:c.votacion||null,stale:true}); } }catch(e){} })();
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
   try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json();
@@ -238,64 +236,92 @@ const SITE="https://osvalgs.github.io/tominofcvet/";
 const WA_SVG='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.2 0-.4.1-.5l.4-.4.3-.5v-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3c-.3.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.6-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>';
 function waLink(t){ return "https://wa.me/?text="+encodeURIComponent(t); }
 
-const OPTS={
-  A:{t:"Imos todos os dispoñibles",d:"Cada sábado van todos os que poidan, sexan 20, 25 ou 28. Máis cambios e menos minutos por cabeza, pero ninguén queda na casa."},
-  B:{t:"Máximo de convocados con rotación",d:"O adestrador pon un máximo (por exemplo, 18) e decide quen vai. Quen descansa un sábado xoga seguro o seguinte."}
-};
-/* A votación gárdase na mesma folla: o estado como un "partido" especial e os votos como respostas cun código aleatorio por móbil */
-const VKEY="VOTACION";
-let device=""; try{ device=localStorage.getItem("tomino_voto_id")||""; if(!device){ device="m"+Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem("tomino_voto_id",device); } }catch(e){ device="m"+Math.random().toString(36).slice(2,12); }
-let PIN=""; try{ PIN=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}").pin||""; }catch(e){}
-let BUSY=false;
-function meta(){ const p=SHARED.partidos[VKEY]; let m={ronda:1,pechada:false}; if(p&&p.notaGardada){ try{ Object.assign(m,JSON.parse(p.nota)); }catch(e){} } return m; }
-const roundKey=()=>"VOTO_R"+meta().ronda;
-function votes(){ return SHARED.avail[roundKey()]||{}; }
-function counts(){ const c={A:0,B:0}; Object.values(votes()).forEach(v=>{ if(c[v]!=null) c[v]++; }); return c; }
+let PIN="", PINOK=false; try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); PIN=L.pin||""; PINOK=!!(L.ok&&L.pin); }catch(e){}
+const UIV={busy:false};
+const DEF_Q="Como facemos as convocatorias?";
+const DEF_OPTS=["Imos todos os dispoñibles, sexamos os que sexamos","Máximo de convocados con rotación: o adestrador decide e quen descansa xoga o sábado seguinte"];
+function defDeadline(){ const d=new Date(); d.setDate(d.getDate()+2); d.setHours(21,0,0,0); const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
+function fmtAta(ms){ const d=new Date(ms); return d.toLocaleDateString("gl-ES",{weekday:"long",day:"numeric",month:"long"})+" ás "+d.toLocaleTimeString("gl-ES",{hour:"2-digit",minute:"2-digit"}); }
+function quedan(ms){ const s=Math.max(0,ms-Date.now()); const d=Math.floor(s/864e5), h=Math.floor(s%864e5/36e5), m=Math.floor(s%36e5/6e4); return d?`${d} día${d>1?"s":""} e ${h} h`:h?`${h} h e ${m} min`:`${m} min`; }
+const LET="ABCDEF";
+function V(){ const v=SHARED.votacion; if(v&&!v.pechada&&v.ata&&Date.now()>v.ata) return {...v,porPechar:true}; return v; }
+function resultsText(v){ const tot=v.total||0, entries=v.opcions.map((o,i)=>[LET[i],o,(v.resultados||{})[o]||0]); const max=Math.max(...entries.map(e=>e[2])); const wins=entries.filter(e=>e[2]===max&&max>0);
+  return `*TOMIÑO F.C. VETERANOS · Resultado da votación*\n${v.pregunta}\n\n`+entries.map(e=>`${e[0]}) ${e[1]}: *${e[2]}*`).join("\n")+`\n\n${wins.length===1?"Gaña a opción "+wins[0][0]+": "+wins[0][1]:wins.length?"Empate":"Sen votos"} (${tot} votos)`; }
+function inviteText(v){ return `*TOMIÑO F.C. VETERANOS · Votación*\n${v.pregunta}\n\nVoto anónimo e só unha vez por persoa 👉 ${SITE}votacion.html\nPecha o ${fmtAta(v.ata)}.`; }
 
 function render(){
-  const m=meta(), v=votes(), my=v[device]||"", c=counts(), tot=c.A+c.B, ready=apiReady()&&SHARED.at;
+  const v=V();
   $("#sync").textContent=syncText();
   $("#banner").innerHTML=!apiReady()?`<div class="banner">A páxina non está conectada á folla compartida.</div>`:SHARED.error==="red"&&!SHARED.at?`<div class="banner err">Non se puido cargar a votación. Comproba a conexión e recarga.</div>`:"";
-  $("#state").innerHTML=m.pechada?`<span class="state closed">Pechada</span>`:`<span class="state open">● Aberta</span>`;
-  $("#opts").innerHTML=Object.keys(OPTS).map(k=>`<button class="opt ${my===k?"mine":""}" data-k="${k}" aria-pressed="${my===k}" aria-disabled="${m.pechada||!ready||BUSY}"><span class="l">${k}</span><span class="t"><b>${OPTS[k].t}</b><span>${OPTS[k].d}</span></span></button>`).join("");
-  $("#mine").textContent=m.pechada?(my?"Votaches a opción "+my+".":"Non votaches nesta votación."):my?"O teu voto: opción "+my+". Podes cambialo mentres estea aberta.":"Aínda non votaches. Toca a opción que prefiras.";
-  let r=`<div class="row between"><h2>${m.pechada?"Resultado":"Votos"}</h2><span class="big">${tot}</span></div>`;
-  if(!m.pechada) r+=`<p class="muted">${tot===1?"Votou 1 persoa":"Votaron "+tot+" persoas"}. O resultado amosarase cando o adestrador peche a votación.</p>`;
-  else { const max=Math.max(c.A,c.B), win=c.A===c.B?null:(c.A>c.B?"A":"B");
-    r+=`<div class="res">${Object.keys(OPTS).map(k=>{ const p=tot?Math.round(c[k]/tot*100):0; return `<div class="ritem ${win===k?"win":""}"><span class="l">${k}</span><span>${OPTS[k].t}</span><span class="n">${c[k]}</span><div class="bar"><i style="width:${p}%"></i></div></div>`; }).join("")}</div>
-      ${tot===0?`<p class="muted">Non votou ninguén.</p>`:win?`<p><span class="chip gold">Gaña a opción ${win}</span> ${OPTS[win].t} (${Math.round(c[win]/tot*100)}%).</p>`:`<p class="muted">Empate. Pódese repetir a votación ou que decida o adestrador.</p>`}
-      <a class="wa" href="${waLink(`*TOMIÑO F.C. VETERANOS · Resultado da votación*\n\nA) ${OPTS.A.t}: ${c.A}\nB) ${OPTS.B.t}: ${c.B}\n\n${win?"Gaña a opción "+win+": "+OPTS[win].t:"Empate"} (${tot} votos)`)}" target="_blank" rel="noopener">${WA_SVG}Compartir resultado</a>`; }
-  $("#result").innerHTML=r;
-  $("#coachBtns").innerHTML=`${m.pechada?`<button class="btn" data-c="open">Reabrir votación</button>`:`<button class="btn" data-c="close">Pechar e amosar resultado</button>`}
-    <button class="btn ghost" data-c="new">Empezar votación nova</button>
-    <a class="wa" href="${waLink(`*TOMIÑO F.C. VETERANOS · Votación*\nComo facemos as convocatorias? Voto anónimo desde o teu móbil 👉 ${SITE}votacion.html`)}" target="_blank" rel="noopener">${WA_SVG}Enviar ao grupo</a>`;
-  if(!$("#inPin").value&&PIN) $("#inPin").value=PIN;
+  let h="";
+  if(!v){ h=`<h2>Non hai ningunha votación aberta</h2><p class="muted">Cando o adestrador prepare unha, aparecerá aquí e no grupo de WhatsApp.</p>`; }
+  else if(!v.pechada&&!v.porPechar){
+    h=`<div class="row between"><span class="state open">● Aberta</span><span class="note">Pecha en <b>${quedan(v.ata)}</b></span></div>
+      <p class="q">${esc(v.pregunta)}</p>
+      <ol class="optlist">${v.opcions.map((o,i)=>`<li><b>${LET[i]}</b><span>${esc(o)}</span></li>`).join("")}</ol>
+      <a class="votebtn" href="${esc(v.url)}" target="_blank" rel="noopener">Votar</a>
+      <p class="note">Ábrese un formulario de Google. Pídeche entrar coa túa conta de Google só para que ninguén poida votar dúas veces: o formulario non garda o teu correo e ninguén pode ver que votaches. Se cambias de idea, podes volver entrar e cambiar o voto ata que peche.</p>
+      <div class="count"><b>${v.total||0}</b><span class="muted">${(v.total||0)===1?"persoa votou":"persoas votaron"} ata agora</span></div>
+      <p class="note">Pecha o <span class="deadline">${esc(fmtAta(v.ata))}</span>. O resultado verase aquí nese momento.</p>`;
+  } else if(v.porPechar){
+    h=`<span class="state closed">Pechando…</span><p class="q">${esc(v.pregunta)}</p><p class="muted">Rematou o prazo. Recargando o resultado…</p>`;
+  } else {
+    const tot=v.total||0, entries=v.opcions.map((o,i)=>({k:LET[i],o,n:(v.resultados||{})[o]||0})); const max=Math.max(...entries.map(e=>e.n)); const wins=entries.filter(e=>e.n===max&&max>0);
+    h=`<div class="row between"><span class="state closed">Pechada</span><span class="note">${tot} votos</span></div>
+      <p class="q">${esc(v.pregunta)}</p>
+      <div class="res">${entries.map(e=>`<div class="ritem ${wins.length===1&&wins[0].k===e.k?"win":""}"><span class="l">${e.k}</span><span>${esc(e.o)}</span><span class="n">${e.n}</span><div class="bar"><i style="width:${tot?Math.round(e.n/tot*100):0}%"></i></div></div>`).join("")}</div>
+      ${tot===0?`<p class="muted">Non votou ninguén.</p>`:wins.length===1?`<p><span class="chip gold">Gaña a opción ${wins[0].k}</span> ${esc(wins[0].o)} (${Math.round(wins[0].n/tot*100)}%).</p>`:`<p class="muted">Empate. Pódese repetir a votación ou que decida o adestrador.</p>`}`;
+  }
+  $("#main").innerHTML=h;
+  renderCoach();
 }
-$("#opts").addEventListener("click",async e=>{
-  const b=e.target.closest(".opt"); if(!b) return; const m=meta();
-  if(m.pechada){ toast("A votación está pechada"); return; }
-  if(!apiReady()||!SHARED.at){ toast("Aínda non se cargou a votación. Agarda un momento."); apiGet().then(render); return; }
-  if(BUSY) return; const k=b.dataset.k, key=roundKey(), cur=votes()[device]||""; if(cur===k) return;
-  BUSY=true; (SHARED.avail[key]=SHARED.avail[key]||{})[device]=k; render();
-  try{ await apiPost({action:"avail",fecha:key,jugador:device,estado:k}); toast("Voto gardado: opción "+k); }
-  catch(x){ SHARED.avail[key][device]=cur; if(!cur) delete SHARED.avail[key][device]; toast("Non se gardou o voto. Téntao de novo."); }
-  BUSY=false; render();
+function renderCoach(){
+  $("#gate").hidden=PINOK; $("#cpanel").hidden=!PINOK; if(!PINOK){ if(!$("#inPin").value&&PIN) $("#inPin").value=PIN; return; }
+  const v=V(), abierta=v&&!v.pechada;
+  let h="";
+  if(abierta) h+=`<div class="panel"><h3>Votación en curso</h3><p><b>${esc(v.pregunta)}</b></p><p class="note">Pecha o ${esc(fmtAta(v.ata))} · ${v.total||0} votos ata agora.</p>
+    <div class="row"><a class="wa" href="${waLink(inviteText(v))}" target="_blank" rel="noopener">${WA_SVG}Enviar ao grupo</a>
+    ${UIV.closeAsk?`<span class="note">Pecharase xa e verase o resultado.</span><button class="btn" data-c="closeYes">Si, pechar</button><button class="btn ghost" data-c="closeNo">Cancelar</button>`:`<button class="btn ghost" data-c="close">Pechar agora</button>`}</div></div>`;
+  if(v&&v.pechada) h+=`<div class="panel"><h3>Última votación</h3><p><b>${esc(v.pregunta)}</b> · ${v.total||0} votos</p><div class="row"><a class="wa" href="${waLink(resultsText(v))}" target="_blank" rel="noopener">${WA_SVG}Compartir resultado</a></div></div>`;
+  h+=`<div class="panel"><h3>${abierta?"Substituír por unha votación nova":"Preparar votación nova"}</h3>
+    <label class="f" for="vQ">Pregunta<input id="vQ" maxlength="200" value="${esc(UIV.q??DEF_Q)}"></label>
+    <label class="f" for="vO">Opcións (unha por liña, de 2 a 6)<textarea id="vO" rows="4">${esc(UIV.o??DEF_OPTS.join("\n"))}</textarea></label>
+    <div class="row"><label class="f" for="vAta">Pecha o<input id="vAta" type="datetime-local" value="${esc(UIV.ata??defDeadline())}"></label>
+      <div class="row" style="gap:6px;align-self:flex-end">${[1,2,3,7].map(d=>`<button class="btn ghost sm" data-c="plazo" data-d="${d}">${d} día${d>1?"s":""}</button>`).join("")}</div></div>
+    ${abierta?`<p class="note">A votación actual pecharase e esta substituiraa.</p>`:""}
+    <div class="row"><button class="btn" data-c="create" ${UIV.busy?"disabled":""}>${UIV.busy?"Creando o formulario…":"Crear votación"}</button></div>
+    <p class="note">Créase un formulario de Google á túa conta: unha resposta por persoa, sen recoller correos. Ao rematar o prazo péchase só e o resultado aparece aquí para todos.</p></div>
+    <p class="note"><a href="#" data-c="logout">Saír da zona do adestrador</a></p>`;
+  $("#cpanel").innerHTML=h;
+}
+async function entrar(){ const p=$("#inPin").value.trim(); if(!p) return; try{ await apiPost({action:"comprobarPin",pin:p}); PIN=p; PINOK=true;
+    try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); L.pin=p; L.ok=true; localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(e){} render(); }
+  catch(e){ toast(e&&e.error==="pin"?"PIN incorrecto":"Non se puido comprobar. Revisa a conexión."); } }
+$("#pinGo").addEventListener("click",entrar);
+$("#inPin").addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
+document.addEventListener("input",e=>{ if(e.target.id==="vQ") UIV.q=e.target.value; if(e.target.id==="vO") UIV.o=e.target.value; if(e.target.id==="vAta") UIV.ata=e.target.value; });
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-c]"); if(!b) return; e.preventDefault(); const c=b.dataset.c;
+  if(c==="plazo"){ const d=new Date(); d.setDate(d.getDate()+Number(b.dataset.d)); d.setHours(21,0,0,0); const p=n=>String(n).padStart(2,"0"); UIV.ata=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T21:00`; renderCoach(); return; }
+  if(c==="logout"){ PINOK=false; try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); L.ok=false; localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(x){} render(); return; }
+  if(c==="close"){ UIV.closeAsk=true; renderCoach(); return; }
+  if(c==="closeNo"){ UIV.closeAsk=false; renderCoach(); return; }
+  if(c==="closeYes"){ UIV.closeAsk=false; b.disabled=true; try{ await apiPost({action:"pecharVotacion",pin:PIN}); toast("Votación pechada: xa se ve o resultado"); }catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":x&&x.error==="acción desconocida"?"Hai que actualizar o script da folla de Google":"Non se puido pechar. Téntao de novo."); } await apiGet(); render(); return; }
+  if(c==="create"){
+    const q=($("#vQ").value||"").trim(), ops=($("#vO").value||"").split("\n").map(s=>s.trim()).filter(Boolean), ataS=$("#vAta").value, ata=ataS?new Date(ataS).getTime():0;
+    if(!q){ toast("Escribe a pregunta"); return; } if(ops.length<2||ops.length>6){ toast("Pon entre 2 e 6 opcións, unha por liña"); return; }
+    if(!ata||ata<Date.now()+10*6e4){ toast("O peche ten que ser polo menos dentro de 10 minutos"); return; }
+    UIV.busy=true; renderCoach();
+    try{ await apiPost({action:"crearVotacion",pin:PIN,pregunta:q,opcions:ops,ata}); await apiGet(); toast("Votación creada. Envíaa ao grupo."); UIV.q=UIV.o=UIV.ata=undefined; }
+    catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":x&&x.error==="acción desconocida"?"Hai que actualizar o script da folla de Google":"Non se puido crear: "+(x&&x.error?x.error:"sen conexión")); }
+    UIV.busy=false; render(); return; }
 });
-$("#coachBtns").addEventListener("click",async e=>{
-  const b=e.target.closest("[data-c]"); if(!b) return; const pin=$("#inPin").value.trim(); if(!pin){ toast("Escribe o PIN do adestrador"); return; }
-  const m=meta(), c=b.dataset.c;
-  const next=c==="close"?{...m,pechada:true}:c==="open"?{...m,pechada:false}:{ronda:(m.ronda||1)+1,pechada:false};
-  b.disabled=true;
-  try{ await apiPost({action:"partido",fecha:VKEY,hora:"",nota:JSON.stringify(next),pin});
-    try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); L.pin=pin; localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(x){}
-    toast(c==="close"?"Votación pechada: xa se ve o resultado":c==="open"?"Votación aberta de novo":"Votación nova aberta"); }
-  catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":"Non se puido gardar. Téntao de novo."); }
-  b.disabled=false; await apiGet(); render();
-});
-onShared=()=>render();
+onShared=()=>{ const ae=document.activeElement; if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)) return; render(); };
+if(location.hash==="#adestrador") $("#coach").open=true;
 render();
 apiGet().then(render);
-setInterval(()=>{ if(!document.hidden) apiGet().then(render); },30000);
+setInterval(()=>{ if(!document.hidden){ const v=V(); if(v&&v.porPechar) apiGet().then(render); else if(!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))) apiGet().then(render); } },30000);
+setInterval(()=>{ const v=V(); if(v&&!v.pechada&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))) render(); },60000);
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) apiGet().then(render); });
 </script>
 </body>
