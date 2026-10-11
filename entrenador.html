@@ -173,6 +173,13 @@ textarea{min-height:0}
 .lesb.on{background:var(--no);color:#fff;border-color:var(--no)}
 .mic{align-self:flex-start;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 12px;font:600 .82rem var(--body);cursor:pointer;margin:2px 0}
 .mic.on{background:var(--no);color:#fff;border-color:var(--no)}
+.mrow{flex-wrap:wrap}
+.mctl{display:flex;gap:6px;align-items:center;margin-left:auto}
+.cardb{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;height:34px;min-width:38px;padding:0 8px;font:700 .85rem var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.cardb .card{width:10px;height:14px;margin:0}
+.cardb.on.y{background:#f2c200;border-color:#d2a800;color:#2a1d00}
+.cardb.on.r{background:#d8261c;border-color:#b01e15}
+.pc-g{grid-template-columns:repeat(4,1fr)}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -291,7 +298,7 @@ function waLink(t){ return "https://wa.me/?text="+encodeURIComponent(t); }
 
 const L={tab:"conv",limit:18,pin:"",forced:{},fecha:""};
 try{ Object.assign(L,JSON.parse(localStorage.getItem("tomino_entrenador")||"{}")); }catch(e){}
-L.tab="conv";
+L.tab="conv"; L.fecha="";
 const saveL=()=>{ try{ localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(e){} };
 const UI={clearAsk:false,confirm:false,copy:"",sortK:"convocado",sortDir:-1,open:{},slot:null,draft:null,player:null};
 const pending=()=>DATA.calendario.filter(c=>!playedDates.has(c.fecha));
@@ -418,7 +425,7 @@ const SISTEMAS={
  "3-4-3":[["PT",50,90],["DFC",74,74],["DFC",50,77],["DFC",26,74],["MD",86,48],["MC",61,52],["MC",39,52],["MI",14,48],["ED",80,22],["DC",50,16],["EI",20,22]],
  "5-3-2":[["PT",50,90],["CAD",90,62],["DFC",70,74],["DFC",50,77],["DFC",30,74],["CAI",10,62],["MC",72,46],["MC",50,49],["MC",28,46],["DC",62,18],["DC",38,18]]
 };
-const segDefault=()=>({sistema:"4-4-2",once:Array(11).fill(""),plan:"",duracion:90,minutos:{},lesion:{},cambios:"",aciertos:"",mellorar:"",notas:""});
+const segDefault=()=>({sistema:"4-4-2",once:Array(11).fill(""),plan:"",duracion:90,minutos:{},lesion:{},amarelas:{},vermellas:{},cambios:"",aciertos:"",mellorar:"",notas:""});
 function segFixture(){ const all=DATA.calendario; let c=all.find(x=>x.fecha===L.segFecha); if(!c){ const last=[...DATA.partidos].pop(); const nx=nextFixture(); c=nx||(last&&all.find(x=>x.fecha===last.fecha))||all[0]; } return c; }
 function segDraft(f){ if(!UI.draft||UI.draft.fecha!==f){ UI.draft={fecha:f,d:Object.assign(segDefault(),JSON.parse(JSON.stringify(SEG[f]||{}))),dirty:false}; } return UI.draft.d; }
 function squadFor(c){
@@ -462,9 +469,12 @@ function rSeg(){
     <div class="row"><label class="f" for="inDur">Duración do partido (min)<input id="inDur" type="number" min="20" max="120" value="${dur}" style="width:6em"></label>
     <button class="btn ghost sm" data-a="minFull" style="align-self:flex-end" ${listo?"":"hidden"}>Titulares: partido enteiro</button></div>
     ${!listo?`<p class="banner">Os xogadores aparecerán aquí cando publiques a convocatoria ou fagas a aliñación deste partido.</p>`:""}
-    <ul class="list mins" ${listo?"":"hidden"}>${minNames.map(n=>{ const t=d.once.includes(n)||(!d.once.some(Boolean)&&sq.tit.includes(n)); const m=d.minutos[n]; const les=d.lesion[n]; return `<li><span class="num">${dorsalDe(n)}</span><span class="name">${esc(corto(n))}${t?` <span class="tag">T</span>`:""}</span>
-      <input class="min" type="number" min="0" max="${dur}" inputmode="numeric" placeholder="min" data-min="${esc(n)}" value="${m??""}">
-      <button class="lesb ${les?"on":""}" data-a="les" data-n="${esc(n)}">${les?"Lesionado ✓":"Lesionado"}</button></li>`; }).join("")}</ul>
+    <ul class="list mins" ${listo?"":"hidden"}>${minNames.map(n=>{ const t=d.once.includes(n)||(!d.once.some(Boolean)&&sq.tit.includes(n)); const m=d.minutos[n]; const les=d.lesion[n]; const am=(d.amarelas||{})[n]||0, ve=(d.vermellas||{})[n]; return `<li class="mrow"><span class="num">${dorsalDe(n)}</span><span class="name">${esc(corto(n))}${t?` <span class="tag">T</span>`:""}</span>
+      <span class="mctl"><input class="min" type="number" min="0" max="${dur}" inputmode="numeric" placeholder="min" data-min="${esc(n)}" value="${m??""}">
+      <button class="cardb y ${am?"on":""}" data-a="am" data-n="${esc(n)}" title="Amarela">${am?am+" ":""}<i class="card y"></i></button>
+      <button class="cardb r ${ve?"on":""}" data-a="ve" data-n="${esc(n)}" title="Vermella"><i class="card r"></i></button>
+      <button class="lesb ${les?"on":""}" data-a="les" data-n="${esc(n)}">${les?"Lesionado ✓":"Lesionado"}</button></span></li>`; }).join("")}</ul>
+    <p class="note">Toca a tarxeta amarela unha vez por cada amarela (volve a 0 á terceira). As tarxetas da acta da federación teñen prioridade cando estea dispoñible.</p>
     ${Object.keys(d.lesion).filter(n=>d.lesion[n]).length?`<label class="f" for="tLes">Lesións (que lle pasou a cada un)${micBtn("tLes")}<textarea id="tLes" data-k="lesionNota" rows="2">${esc(d.lesionNota||"")}</textarea></label>`:""}
     <label class="f" for="tCam">Cambios de sistema ou de táctica (minuto e motivo)${micBtn("tCam")}<textarea id="tCam" data-k="cambios" rows="2" placeholder="Ex.: min 50, pasamos a 4-3-3 para apretar arriba">${esc(d.cambios)}</textarea></label>
     <label class="f" for="tAci">Aciertos${micBtn("tAci")}<textarea id="tAci" data-k="aciertos" rows="3">${esc(d.aciertos)}</textarea></label>
@@ -481,16 +491,26 @@ function markDirty(){ if(UI.draft){ UI.draft.dirty=true; const n=$("#dirtyNote")
 /* ---------- Estatísticas por xogador ---------- */
 function playerStats(){
   const {C}=counters("9999"), ms=DATA.partidos, n=ms.length;
+  const extra=Object.keys(SEG).filter(f=>!playedDates.has(f)&&f<=TODAY).sort().map(f=>({fecha:f,cal:DATA.calendario.find(c=>c.fecha===f)})).filter(x=>x.cal);
   return DATA.plantilla.map(p=>{
-    let min=0, conMin=0, les=0; const posC={}; const det=[];
-    ms.forEach(m=>{ const t=m.titulares.some(x=>x.nombre===p.nombre), s=m.suplentes.some(x=>x.nombre===p.nombre), sg=SEG[m.fecha];
-      const mi=sg&&sg.minutos&&sg.minutos[p.nombre]!=null&&sg.minutos[p.nombre]!==""?Number(sg.minutos[p.nombre]):null;
-      let po=""; if(sg&&sg.once){ const i=sg.once.indexOf(p.nombre); if(i>=0) po=(SISTEMAS[sg.sistema]||SISTEMAS["4-4-2"])[i][0]; }
-      if(mi!=null){ min+=mi; conMin++; } if(po) posC[po]=(posC[po]||0)+1; if(sg&&sg.lesion&&sg.lesion[p.nombre]) les++;
-      det.push({m,les:!!(sg&&sg.lesion&&sg.lesion[p.nombre]),rol:t?"T":s?"S":"X",min:mi,pos:po,goles:m.goles.filter(g=>g.nombre===p.nombre&&g.tipo!=="propia").length,tar:m.tarjetas.filter(x=>x.nombre===p.nombre)});
+    let min=0, conMin=0, les=0, am=0, ve=0, conv=p.convocado; const posC={}; const det=[];
+    const posOf=sg=>{ if(sg&&sg.once){ const i=sg.once.indexOf(p.nombre); if(i>=0) return (SISTEMAS[sg.sistema]||SISTEMAS["4-4-2"])[i][0]; } return ""; };
+    const minOf=sg=>sg&&sg.minutos&&sg.minutos[p.nombre]!=null&&sg.minutos[p.nombre]!==""?Number(sg.minutos[p.nombre]):null;
+    ms.forEach(m=>{ const t=m.titulares.some(x=>x.nombre===p.nombre), s=m.suplentes.some(x=>x.nombre===p.nombre), sg=SEG[m.fecha], mi=minOf(sg), po=posOf(sg);
+      const tar=m.tarjetas.filter(x=>x.nombre===p.nombre); tar.forEach(x=>{ if(x.tipo==="amarilla") am++; else if(x.tipo==="roja") ve++; else { am++; ve++; } });
+      if(mi!=null){ min+=mi; conMin++; } if(po) posC[po]=(posC[po]||0)+1; const l=!!(sg&&sg.lesion&&sg.lesion[p.nombre]); if(l) les++;
+      det.push({m,les:l,rol:t?"T":s?"S":"X",min:mi,pos:po,goles:m.goles.filter(g=>g.nombre===p.nombre&&g.tipo!=="propia").length,tar});
+    });
+    extra.forEach(({fecha,cal})=>{ const sg=SEG[fecha], mi=minOf(sg), po=posOf(sg), pub=SHARED.convocatorias.find(x=>x.fecha===fecha);
+      const inConv=pub?pub.convocados.includes(p.nombre):(mi!=null||!!po); if(inConv) conv++;
+      const a2=(sg.amarelas||{})[p.nombre]||0, v2=!!(sg.vermellas||{})[p.nombre]; am+=a2; if(v2) ve++;
+      if(mi!=null){ min+=mi; conMin++; } if(po) posC[po]=(posC[po]||0)+1; const l=!!(sg.lesion&&sg.lesion[p.nombre]); if(l) les++;
+      const tar=[]; for(let i=0;i<a2;i++) tar.push({tipo:"amarilla",min:"?"}); if(v2) tar.push({tipo:"roja",min:"?"});
+      det.push({m:{fecha,jornada:cal.jornada,local:cal.local,visitante:cal.visitante},les:l,rol:inConv?(po?"T":"S"):"X",min:mi,pos:po,goles:0,tar,sinActa:true});
     });
     const posTop=Object.entries(posC).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
-    return {...p,desc:C[p.nombre].desc,pct:n?Math.round(p.convocado/n*100):0,min,media:conMin?Math.round(min/conMin):null,les,posTop,det};
+    const tot=n+extra.length;
+    return {...p,convocado:conv,amarillas:am,rojas:ve,desc:C[p.nombre].desc,pct:tot?Math.round(conv/tot*100):0,min,media:conMin?Math.round(min/conMin):null,les,posTop,det,tot};
   });
 }
 function rJug(){
@@ -499,7 +519,7 @@ function rJug(){
   const withMin=ms.filter(m=>SEG[m.fecha]&&SEG[m.fecha].minutos&&Object.keys(SEG[m.fecha].minutos).length).length;
   const avg=ms.length?Math.round(ms.reduce((s,m)=>s+m.titulares.length+m.suplentes.length,0)/ms.length):0;
   const topMin=rows.slice().sort((a,b)=>b.min-a.min)[0], topGol=rows.slice().sort((a,b)=>b.goles-a.goles)[0];
-  const SORTS=[["convocado","Convocatorias"],["titular","Titular"],["suplente","Suplente"],["min","Minutos"],["goles","Goles"],["tarx","Tarxetas"],["les","Lesións"],["desc","Descansos"],["dorsal","Dorsal"],["nombre","Nome"]];
+  const SORTS=[["convocado","Convocatorias"],["titular","Titular"],["suplente","Suplente"],["min","Minutos"],["media","Minutos por partido"],["goles","Goles"],["amarillas","Amarelas"],["rojas","Vermellas"],["tarx","Tarxetas en total"],["les","Lesións"],["desc","Descansos"],["dorsal","Dorsal"],["nombre","Nome"]];
   let h=`<div class="row"><a class="wa" href="${waLink(statsText())}" target="_blank" rel="noopener">${WA_SVG}Compartir estatísticas</a></div>
     <div class="kpis"><div><b>${ms.length}</b><span>partidos xogados</span></div><div><b>${avg}</b><span>convocados de media</span></div>
     <div><b>${topGol&&topGol.goles?esc(corto(topGol.nombre)):"–"}</b><span>máximo goleador${topGol&&topGol.goles?" ("+topGol.goles+")":""}</span></div>
@@ -509,15 +529,16 @@ function rJug(){
     <div class="pcards">${rows.map(p=>`<button class="pcard ${UI.player===p.nombre?"sel":""}" data-a="pcard" data-p="${esc(p.nombre)}">
       <div class="pc-h"><span class="num">${p.dorsal??"–"}</span><b>${esc(nice(p.nombre))}</b></div>
       <div class="pc-g">
-        <span><b>${p.convocado}/${ms.length}</b>Convocado</span><span><b>${p.titular}</b>Titular</span><span><b>${p.suplente}</b>Suplente</span><span><b>${p.min||0}</b>Minutos</span>
-        <span><b>${p.goles}</b>Goles</span><span><b>${p.amarillas}<i class="card y"></i>${p.rojas}<i class="card r"></i></b>Tarxetas</span><span><b>${p.les}</b>Lesións</span><span><b>${p.desc}</b>Descansos</span>
+        <span><b>${p.convocado}/${p.tot}</b>Convocado</span><span><b>${p.titular}</b>Titular</span><span><b>${p.suplente}</b>Suplente</span><span><b>${p.min||0}</b>Minutos</span>
+        <span><b>${p.goles}</b>Goles</span><span><b>${p.amarillas}</b>Amarelas</span><span><b>${p.rojas}</b>Vermellas</span><span><b>${p.les}</b>Lesións</span>
+        <span><b>${p.desc}</b>Descansos</span><span><b>${p.media??"–"}</b>Min/partido</span><span><b>${p.pct}%</b>Asistencia</span><span><b>${p.posTop[0]||"–"}</b>Posición</span>
       </div>
       <div class="strip left">${p.det.map(x=>`<i class="${x.rol}" title="X${x.m.jornada}">${x.rol==="X"?"–":x.min!=null?x.min:x.rol}</i>`).join("")}</div></button>`).join("")}</div>
     <div class="legend"><span class="strip"><i class="T">T</i></span>Titular <span class="strip"><i class="S">S</i></span>Suplente <span class="strip"><i class="X">–</i></span>Non convocado · un número son os minutos xogados</div>`;
   const sel=rows.find(p=>p.nombre===UI.player);
   if(sel) h+=`<div class="panel ficha" id="ficha"><div class="row between"><h2>${sel.dorsal!=null?sel.dorsal+" · ":""}${esc(nice(sel.nombre))}</h2><button class="btn ghost sm" data-a="closeP">Pechar</button></div>
     ${sel.posTop.length?`<p><b>Posicións:</b> ${sel.posTop.join(", ")}</p>`:""}${sel.media!=null?`<p><b>Media:</b> ${sel.media} minutos por partido anotado</p>`:""}
-    <ul class="list">${sel.det.map(x=>`<li><span class="num">X${x.m.jornada}</span><span class="name">${esc(x.m.local==="Tomiño F.C."?"contra "+x.m.visitante:"en "+x.m.local)}<br><span class="note">${x.rol==="T"?"Titular":x.rol==="S"?"Suplente":"Non convocado"}${x.pos?" · "+x.pos:""}${x.min!=null?" · "+x.min+" min":""}${x.goles?" · "+x.goles+" gol"+(x.goles>1?"es":""):""}${x.tar.map(t=>" · "+(t.tipo==="amarilla"?"amarela":t.tipo==="roja"?"vermella":"dobre amarela")+" ("+t.min+"')").join("")}${x.les?" · lesionado":""}</span></span></li>`).join("")}</ul></div>`;
+    <ul class="list">${sel.det.map(x=>`<li><span class="num">X${x.m.jornada}</span><span class="name">${esc(x.m.local==="Tomiño F.C."?"contra "+x.m.visitante:"en "+x.m.local)}<br><span class="note">${x.rol==="T"?"Titular":x.rol==="S"?(x.sinActa?"Convocado":"Suplente"):"Non convocado"}${x.sinActa?" (sen acta)":""}${x.pos?" · "+x.pos:""}${x.min!=null?" · "+x.min+" min":""}${x.goles?" · "+x.goles+" gol"+(x.goles>1?"es":""):""}${x.tar.map(t=>" · "+(t.tipo==="amarilla"?"amarela":t.tipo==="roja"?"vermella":"dobre amarela")+(t.min==="?"?"":" ("+t.min+"')")).join("")}${x.les?" · lesionado":""}</span></span></li>`).join("")}</ul></div>`;
   $("#t-jug").innerHTML=h;
 }
 
@@ -540,6 +561,8 @@ function resumoText(c,d){
   if(m){ const g=m.goles.filter(x=>x.tipo!=="propia"); if(g.length) t+=`⚽ ${g.map(x=>corto(x.nombre)+" "+x.min+"'").join(", ")}\n`; }
   const mins=Object.keys(d.minutos||{}).filter(n=>d.minutos[n]!==""&&d.minutos[n]!=null).sort((a,b)=>d.minutos[b]-d.minutos[a]);
   if(mins.length) t+=`\n*Minutos (de ${Number(d.duracion)||90})*\n`+mins.map(n=>`${dorsalDe(n)!==""?dorsalDe(n)+". ":""}${corto(n)}: ${d.minutos[n]}'`).join("\n")+"\n";
+  const am=Object.keys(d.amarelas||{}).filter(n=>d.amarelas[n]), ve=Object.keys(d.vermellas||{}).filter(n=>d.vermellas[n]);
+  if(am.length||ve.length) t+=`\n*Tarxetas:* ${am.map(n=>corto(n)+" 🟨"+(d.amarelas[n]>1?"×"+d.amarelas[n]:"")).concat(ve.map(n=>corto(n)+" 🟥")).join(", ")}\n`;
   const les=Object.keys(d.lesion||{}).filter(n=>d.lesion[n]);
   if(les.length) t+=`\n*Lesionados:* ${les.map(n=>corto(n)).join(", ")}${d.lesionNota&&d.lesionNota.trim()?"\n"+d.lesionNota.trim():""}\n`;
   [["cambios","Cambios de táctica"],["aciertos","Aciertos"],["mellorar","A mellorar"],["notas","Notas"]].forEach(([k,l])=>{ if(d[k]&&d[k].trim()) t+=`\n*${l}*\n${d[k].trim()}\n`; });
@@ -609,7 +632,7 @@ async function withPin(body,okMsg){
 }
 
 document.addEventListener("click",async e=>{
-  const tb=e.target.closest("nav button"); if(tb){ L.tab=tb.dataset.tab; UI.copy=""; saveL(); render(); window.scrollTo(0,0); return; }
+  const tb=e.target.closest("nav button"); if(tb){ L.tab=tb.dataset.tab; UI.copy=""; saveL(); render(); window.scrollTo(0,0); if(!(UI.draft&&UI.draft.dirty)) apiGet().then(()=>{ if(L.tab===tb.dataset.tab) render(); }); return; }
   const th=e.target.closest("th[data-k]"); if(th){ const k=th.dataset.k; if(k==="strip") return; if(k===UI.sortK) UI.sortDir*=-1; else { UI.sortK=k; UI.sortDir=(k==="nombre"||k==="dorsal")?1:-1; } render(); return; }
   const b=e.target.closest("[data-a]"); if(!b||b.disabled) return; const a=b.dataset.a, c=fx();
   if(a==="mic"){ const id=b.dataset.for; if(RECFOR===id){ stopRec(); return; } stopRec(); setTimeout(()=>startRec(id),150); return; }
@@ -629,6 +652,8 @@ document.addEventListener("click",async e=>{
     if(pt>=0){ d.once[0]=tit.splice(pt,1)[0]; } tit.forEach(n=>{ const i=d.once.indexOf(""); if(i>=0) d.once[i]=n; }); markDirty(); render(); return; }
   if(a==="onceClear"){ UI.draft.d.once=Array(11).fill(""); markDirty(); render(); return; }
   if(a==="minFull"){ const d=UI.draft.d, dur=Number(d.duracion)||90, sq=squadFor(segFixture()); const tit=d.once.some(Boolean)?d.once.filter(Boolean):sq.tit; tit.forEach(n=>{ if(d.minutos[n]==null||d.minutos[n]==="") d.minutos[n]=dur; }); markDirty(); render(); return; }
+  if(a==="am"){ const d=UI.draft.d, n=b.dataset.n; d.amarelas=d.amarelas||{}; d.amarelas[n]=((d.amarelas[n]||0)+1)%3; if(!d.amarelas[n]) delete d.amarelas[n]; markDirty(); render(); return; }
+  if(a==="ve"){ const d=UI.draft.d, n=b.dataset.n; d.vermellas=d.vermellas||{}; d.vermellas[n]=!d.vermellas[n]; if(!d.vermellas[n]) delete d.vermellas[n]; markDirty(); render(); return; }
   if(a==="les"){ const d=UI.draft.d, n=b.dataset.n; d.lesion[n]=!d.lesion[n]; if(!d.lesion[n]) delete d.lesion[n]; markDirty(); render(); return; }
   if(a==="segSave"){ const c2=segFixture(), d=UI.draft.d; Object.keys(d.minutos).forEach(n=>{ if(d.minutos[n]===""||d.minutos[n]==null) delete d.minutos[n]; });
     if(!L.pin) return; try{ const j=await apiPost({action:"gardarSeguimento",pin:L.pin,fecha:c2.fecha,datos:d}); Object.assign(SEG,j.seguimento||{}); UI.draft.dirty=false; toast("Seguimento gardado"); }
@@ -686,6 +711,7 @@ if(L.ok&&L.pin){ $("#app").hidden=false; render(); loadSeg().then(()=>{ if(!$("#
   apiPost({action:"comprobarPin",pin:L.pin}).catch(x=>{ if(x&&x.error==="pin"){ L.ok=false; saveL(); $("#app").hidden=true; $("#gate").hidden=false; $("#gMsg").textContent="O PIN cambiou. Escribe o novo."; } }); }
 else { $("#gate").hidden=false; }
 apiGet().then(()=>{ if(!$("#app").hidden) render(); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && !$("#app").hidden && !(UI.draft&&UI.draft.dirty)) apiGet().then(render); });
 setInterval(()=>{ if(!$("#app").hidden && !document.hidden && !(UI.draft&&UI.draft.dirty) && !UI.copy && !UI.confirm && !(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))) apiGet().then(render); },60000);
 </script>
 </body>
