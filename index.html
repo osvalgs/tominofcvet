@@ -95,6 +95,10 @@ ul.list li:last-child{border-bottom:0}
 .wa{display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#08331a;font-weight:700;text-decoration:none;border-radius:10px;padding:10px 14px;border:0;font-size:.95rem;cursor:pointer}
 .wa svg{width:18px;height:18px}
 .tag{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--gold);color:var(--gold-ink);flex:none}
+/* Os despregables non poden saír do marxe aínda que o texto da opción sexa longo */
+label.f{min-width:0;max-width:100%}
+label.f select{width:100%;max-width:100%;min-width:0;text-overflow:ellipsis}
+.row>*{min-width:0;max-width:100%}
 
 .me{display:flex;flex-direction:column;gap:12px}
 .me select{font-size:1.05rem;padding:11px 12px}
