@@ -256,7 +256,8 @@ const apiReady=()=>/^https:\/\/script\.google/.test(API);
 function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
 function normHora(v){ v=String(v||""); if(!v||/^\d{1,2}:\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
 function normalize(j){
-  const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=Object.assign(av[f]||{},j.avail[k]); });
+  /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
+  const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=av[f]||{}; Object.keys(j.avail[k]).forEach(n=>{ const v=j.avail[k][n]; if(v&&v!=="-") av[f][n]=v; else delete av[f][n]; }); });
   const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||"",notaGardada:j.partidos[k].nota!==undefined&&j.partidos[k].nota!==null&&String(j.partidos[k].nota)!=="__defecto__"}; });
   return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa};
 }
@@ -307,6 +308,7 @@ function heroNext(el,c,extra){
 /* Estados de asistencia */
 const ESTADOS={va:"Vou",tarde:"Chego tarde",antes:"Marcho antes",no:"Non vou"};
 const VAI=e=>e==="va"||e==="tarde"||e==="antes";
+const SEN_RESPOSTA="-";
 const SITE="https://osvalgs.github.io/tominofcvet/";
 const WA_SVG='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.2 0-.4.1-.5l.4-.4.3-.5v-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3c-.3.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.6-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>';
 function waLink(t){ return "https://wa.me/?text="+encodeURIComponent(t); }
@@ -658,7 +660,7 @@ document.addEventListener("click",async e=>{
   if(a==="clearYes"){ UI.clearAsk=false; const f=c.fecha, names=Object.keys(SHARED.avail[f]||{}).filter(n=>SHARED.avail[f][n]);
     if(!names.length){ render(); toast("Non había respostas que limpar"); return; }
     L.forced[f]=[]; saveL(); SHARED.avail[f]={}; render(); toast("Limpando "+names.length+" respostas…");
-    let fail=0; const q=names.slice(); const work=async()=>{ while(q.length){ const n=q.shift(); try{ await apiPost({action:"avail",fecha:f,jugador:n,estado:""}); }catch(x){ fail++; } } };
+    let fail=0; const q=names.slice(); const work=async()=>{ while(q.length){ const n=q.shift(); try{ await apiPost({action:"avail",fecha:f,jugador:n,estado:SEN_RESPOSTA}); }catch(x){ fail++; } } };
     await Promise.all([work(),work(),work(),work()]); await apiGet(); render(); toast(fail?"Quedaron "+fail+" sen borrar. Téntao de novo.":"Asistencia limpada"); return; }
   if(a==="toSeg"){ L.segFecha=b.dataset.f; UI.slot=null; L.tab="seg"; saveL(); render(); window.scrollTo(0,0); return; }
   if(a==="slot"){ const i=+b.dataset.i; UI.slot=UI.slot===i?null:i; render(); return; }
@@ -681,7 +683,7 @@ document.addEventListener("click",async e=>{
   if(a==="reload"){ b.disabled=true; b.textContent="Actualizando…"; await apiGet(); render(); toast(SHARED.error?"Non se puido actualizar: revisa a conexión":"Actualizado"); return; }
   if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), v=b.dataset.v, nx=(v===""||cur===v)?"":v; if(UI.avBusy[n]||nx===cur) return;
     UI.avBusy[n]=true; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
-    try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx}); toast(corto(n)+": "+(nx?ESTADOS[nx].toLowerCase():"sen resposta")); }
+    try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx||SEN_RESPOSTA}); toast(corto(n)+": "+(nx?ESTADOS[nx].toLowerCase():"sen resposta")); }
     catch(x){ SHARED.avail[c.fecha][n]=cur; toast("Non se puido gardar"); }
     delete UI.avBusy[n]; render(); return; }
   if(a==="force"){ const f=new Set(L.forced[c.fecha]||[]); f.add(b.dataset.n); L.forced[c.fecha]=[...f]; saveL(); render(); return; }
