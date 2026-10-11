@@ -65,18 +65,28 @@ function hoja(nombre, cabecera) {
   return sh;
 }
 
-/* Busca la fila cuyas primeras columnas coinciden con "clave" y la sustituye; si fila es null, la borra */
+/* A folla pode converter "2026-10-17" ou "17:00" en datas: volvemos sempre a texto */
+function txt(v) {
+  if (v instanceof Date) {
+    return v.getFullYear() < 1901
+      ? Utilities.formatDate(v, Session.getScriptTimeZone(), "HH:mm")
+      : Utilities.formatDate(v, Session.getScriptTimeZone(), "yyyy-MM-dd");
+  }
+  return String(v);
+}
+
+/* Busca as filas cuxas primeiras columnas coinciden con "clave": actualiza a primeira e borra as repetidas; se fila é null, bórraas todas */
 function guardar(nombre, cabecera, clave, fila) {
   const sh = hoja(nombre, cabecera);
   const datos = sh.getDataRange().getValues();
+  let feito = false;
   for (let i = datos.length - 1; i >= 1; i--) {
-    if (clave.every((k, j) => String(datos[i][j]) === String(k))) {
-      if (fila) sh.getRange(i + 1, 1, 1, fila.length).setValues([fila]);
+    if (clave.every((k, j) => txt(datos[i][j]) === String(k))) {
+      if (fila && !feito) { sh.getRange(i + 1, 1, 1, fila.length).setValues([fila]); feito = true; }
       else sh.deleteRow(i + 1);
-      return;
     }
   }
-  if (fila) sh.appendRow(fila);
+  if (fila && !feito) sh.appendRow(fila);
 }
 
 function filas(nombre, cabecera) {
@@ -87,14 +97,14 @@ function filas(nombre, cabecera) {
 function leerTodo() {
   const avail = {};
   filas("disponibilidad", ["fecha", "jugador", "estado", "actualizado"]).forEach(r => {
-    const f = String(r[0]); (avail[f] = avail[f] || {})[String(r[1])] = String(r[2]);
+    const f = txt(r[0]); (avail[f] = avail[f] || {})[String(r[1])] = String(r[2]);
   });
   const convocatorias = filas("convocatorias", ["fecha", "convocados", "descansan", "actualizado"]).map(r => ({
-    fecha: String(r[0]), convocados: JSON.parse(r[1] || "[]"), descansan: JSON.parse(r[2] || "[]")
+    fecha: txt(r[0]), convocados: JSON.parse(r[1] || "[]"), descansan: JSON.parse(r[2] || "[]")
   }));
   const partidos = {};
   filas("partidos", ["fecha", "hora", "nota", "actualizado"]).forEach(r => {
-    partidos[String(r[0])] = { hora: String(r[1]), nota: String(r[2]) };
+    partidos[txt(r[0])] = { hora: txt(r[1]), nota: String(r[2]) };
   });
   return { avail, convocatorias, partidos };
 }
@@ -103,7 +113,7 @@ function leerTodo() {
 function lerSeguimento() {
   const s = {};
   filas("seguimento", ["fecha", "datos", "actualizado"]).forEach(r => {
-    try { s[String(r[0])] = JSON.parse(r[1] || "{}"); } catch (e) {}
+    try { s[txt(r[0])] = JSON.parse(r[1] || "{}"); } catch (e) {}
   });
   return s;
 }
