@@ -25,7 +25,7 @@ function doPost(e) {
     if (b.action === "avail") {
       if (!b.fecha || !b.jugador) return salida({ ok: false, error: "faltan datos" });
       guardar("disponibilidad", ["fecha", "jugador", "estado", "actualizado"], [b.fecha, b.jugador], b.estado ? [b.fecha, b.jugador, b.estado, new Date()] : null);
-    } else if (["convocatoria", "partido", "borrarConvocatoria", "comprobarPin", "cambiarPin"].includes(b.action)) {
+    } else if (["convocatoria", "partido", "borrarConvocatoria", "comprobarPin", "cambiarPin", "gardarSeguimento", "lerSeguimento"].includes(b.action)) {
       if (String(b.pin) !== pinActual()) return salida({ ok: false, error: "pin" });
       if (b.action === "cambiarPin") {
         const novo = String(b.nuevo || "").trim();
@@ -38,7 +38,11 @@ function doPost(e) {
         guardar("convocatorias", ["fecha", "convocados", "descansan", "actualizado"], [b.fecha], null);
       } else if (b.action === "partido") {
         guardar("partidos", ["fecha", "hora", "nota", "actualizado"], [b.fecha], [b.fecha, b.hora || "", b.nota || "", new Date()]);
+      } else if (b.action === "gardarSeguimento") {
+        guardar("seguimento", ["fecha", "datos", "actualizado"], [b.fecha], [b.fecha, JSON.stringify(b.datos || {}), new Date()]);
       }
+      const r = leerTodo(); r.ok = true; r.seguimento = lerSeguimento();
+      return salida(r);
     } else {
       return salida({ ok: false, error: "acción desconocida" });
     }
@@ -93,6 +97,15 @@ function leerTodo() {
     partidos[String(r[0])] = { hora: String(r[1]), nota: String(r[2]) };
   });
   return { avail, convocatorias, partidos };
+}
+
+/* Notas do adestrador: só se len co PIN, nunca na lectura pública */
+function lerSeguimento() {
+  const s = {};
+  filas("seguimento", ["fecha", "datos", "actualizado"]).forEach(r => {
+    try { s[String(r[0])] = JSON.parse(r[1] || "{}"); } catch (e) {}
+  });
+  return s;
 }
 
 function salida(obj) {
