@@ -180,6 +180,8 @@ textarea{min-height:0}
 .cardb.on.y{background:#f2c200;border-color:#d2a800;color:#2a1d00}
 .cardb.on.r{background:#d8261c;border-color:#b01e15}
 .pc-g{grid-template-columns:repeat(4,1fr)}
+.sync.loading{color:var(--grana);font-weight:700;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -260,11 +262,15 @@ function normalize(j){
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */
 let PENDING=0, REFETCH=false;
 let onShared=()=>{};
+/* Copia local da última lectura: amósase ao momento mentres chega a da folla */
+const CACHE_KEY="tomino_cache_v1";
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,at:Date.now()})); }catch(e){} }
+(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},stale:true}); } }catch(e){} })();
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
   try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json();
     if(PENDING){ REFETCH=true; return SHARED; }
-    Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); }
+    Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date(),stale:false}); saveCache(); }
   catch(e){ SHARED.error="red"; }
   return SHARED;
 }
@@ -273,14 +279,15 @@ async function apiPost(body){
   PENDING++;
   try{ const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
     const j=await r.json(); if(!j.ok) throw j;
-    if(PENDING===1&&j.avail) Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); else REFETCH=true;
+    if(PENDING===1&&j.avail){ Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date(),stale:false}); saveCache(); } else REFETCH=true;
     return j; }
   finally{ PENDING--; if(PENDING===0&&REFETCH){ REFETCH=false; apiGet().then(()=>onShared()); } }
 }
 function syncText(){
   if(SHARED.error==="noapi") return "A folla compartida aínda non está conectada.";
   if(SHARED.error==="red") return "Sen conexión coa folla compartida. Volverase intentar nun momento.";
-  return SHARED.at?"Actualizado ás "+SHARED.at.toLocaleTimeString("gl-ES",{hour:"2-digit",minute:"2-digit"}):"Cargando…";
+  if(!SHARED.at) return SHARED.stale?"Actualizando… (amosando a última copia)":"Cargando…";
+  return "Actualizado ás "+SHARED.at.toLocaleTimeString("gl-ES",{hour:"2-digit",minute:"2-digit"});
 }
 function heroNext(el,c,extra){
   if(!c){ el.innerHTML=`<span class="lbl">Primeira fase rematada</span><span class="meta">O calendario da seguinte fase engadirase cando o publique a federación.</span>`; return; }
@@ -355,7 +362,7 @@ function rConv(){
   const p=SHARED.partidos[c.fecha]||{}, pr=proposal(c), lim=Number(L.limit)||18, pub=SHARED.convocatorias.find(x=>x.fecha===c.fecha);
   const J=jugadores(), pend=J.filter(j=>!av(c.fecha,j.nombre)), no=J.filter(j=>av(c.fecha,j.nombre)==="no");
   const tarde=J.filter(j=>av(c.fecha,j.nombre)==="tarde"), antes=J.filter(j=>av(c.fecha,j.nombre)==="antes");
-  let h=`<div class="row between refresh"><span class="sync">${esc(syncText())}</span><button class="btn sm" data-a="reload">↻ Actualizar</button></div>
+  let h=`<div class="row between refresh"><span class="sync ${SHARED.at?"":"loading"}">${esc(syncText())}</span><button class="btn sm" data-a="reload">↻ Actualizar</button></div>
   <div class="panel"><div class="row">
     <label class="f" for="inFx" style="flex:1 1 14em">Partido<select id="inFx">${pending().map(x=>`<option value="${x.fecha}" ${x.fecha===c.fecha?"selected":""}>X${x.jornada} · ${fmtD(x.fecha,{day:"numeric",month:"short"})} · ${x.enCasa?"contra ":"en "}${esc(x.rival)}</option>`).join("")}</select></label>
     <label class="f" for="inLimit">Máximo de convocados<input type="number" id="inLimit" min="11" max="30" value="${lim}" style="width:6em"></label></div>
@@ -715,10 +722,12 @@ async function entrar(pin){
 $("#gGo").addEventListener("click",()=>{ const p=$("#gPin").value.trim(); if(p) entrar(p); });
 $("#gPin").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#gGo").click(); });
 $("#logout").addEventListener("click",e=>{ e.preventDefault(); L.pin=""; L.ok=false; saveL(); location.reload(); });
-if(L.ok&&L.pin){ $("#app").hidden=false; render(); loadSeg().then(()=>{ if(!$("#app").hidden) render(); });
-  apiPost({action:"comprobarPin",pin:L.pin}).catch(x=>{ if(x&&x.error==="pin"){ L.ok=false; saveL(); $("#app").hidden=true; $("#gate").hidden=false; $("#gMsg").textContent="O PIN cambiou. Escribe o novo."; } }); }
-else { $("#gate").hidden=false; }
-apiGet().then(()=>{ if(!$("#app").hidden) render(); });
+/* Primeiro a asistencia (o que máis se mira); despois o PIN e o seguimento */
+if(L.ok&&L.pin){ $("#app").hidden=false; render();
+  apiGet().then(()=>{ if(!$("#app").hidden) render();
+    loadSeg().then(()=>{ if(!$("#app").hidden) onShared(); });
+    apiPost({action:"comprobarPin",pin:L.pin}).catch(x=>{ if(x&&x.error==="pin"){ L.ok=false; saveL(); $("#app").hidden=true; $("#gate").hidden=false; $("#gMsg").textContent="O PIN cambiou. Escribe o novo."; } }); }); }
+else { $("#gate").hidden=false; apiGet(); }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden && !$("#app").hidden && !(UI.draft&&UI.draft.dirty)) apiGet().then(render); });
 setInterval(()=>{ if(!$("#app").hidden && !document.hidden && !(UI.draft&&UI.draft.dirty) && !UI.copy && !UI.confirm && !(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))) apiGet().then(render); },60000);
 </script>

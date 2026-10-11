@@ -120,6 +120,8 @@ li.mine .name::after{content:" (ti)";font-weight:400;color:var(--muted)}
 .upcoming .jd{font-family:var(--display);font-weight:600;width:3.4em;line-height:1.1;flex:none}
 .upcoming .jd small{display:block;font:600 .72rem var(--body);color:var(--muted)}
 .tip{font-size:.88rem;color:var(--muted);text-align:justify}
+.sync.loading{color:var(--grana);font-weight:700;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -198,11 +200,15 @@ function normalize(j){
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */
 let PENDING=0, REFETCH=false;
 let onShared=()=>{};
+/* Copia local da última lectura: amósase ao momento mentres chega a da folla */
+const CACHE_KEY="tomino_cache_v1";
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY,JSON.stringify({avail:SHARED.avail,convocatorias:SHARED.convocatorias,partidos:SHARED.partidos,at:Date.now()})); }catch(e){} }
+(function(){ try{ const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); if(c&&Date.now()-c.at<7*864e5){ Object.assign(SHARED,{avail:c.avail||{},convocatorias:c.convocatorias||[],partidos:c.partidos||{},stale:true}); } }catch(e){} })();
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
   try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json();
     if(PENDING){ REFETCH=true; return SHARED; }
-    Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); }
+    Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date(),stale:false}); saveCache(); }
   catch(e){ SHARED.error="red"; }
   return SHARED;
 }
@@ -211,14 +217,15 @@ async function apiPost(body){
   PENDING++;
   try{ const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
     const j=await r.json(); if(!j.ok) throw j;
-    if(PENDING===1&&j.avail) Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); else REFETCH=true;
+    if(PENDING===1&&j.avail){ Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date(),stale:false}); saveCache(); } else REFETCH=true;
     return j; }
   finally{ PENDING--; if(PENDING===0&&REFETCH){ REFETCH=false; apiGet().then(()=>onShared()); } }
 }
 function syncText(){
   if(SHARED.error==="noapi") return "A folla compartida aínda non está conectada.";
   if(SHARED.error==="red") return "Sen conexión coa folla compartida. Volverase intentar nun momento.";
-  return SHARED.at?"Actualizado ás "+SHARED.at.toLocaleTimeString("gl-ES",{hour:"2-digit",minute:"2-digit"}):"Cargando…";
+  if(!SHARED.at) return SHARED.stale?"Actualizando… (amosando a última copia)":"Cargando…";
+  return "Actualizado ás "+SHARED.at.toLocaleTimeString("gl-ES",{hour:"2-digit",minute:"2-digit"});
 }
 function heroNext(el,c,extra){
   if(!c){ el.innerHTML=`<span class="lbl">Primeira fase rematada</span><span class="meta">O calendario da seguinte fase engadirase cando o publique a federación.</span>`; return; }
@@ -251,7 +258,7 @@ let BUSY=false;
 function state(n){ return FX ? ((SHARED.avail[FX.fecha]||{})[n]||"") : ""; }
 function render(){
   heroNext($("#next"),FX);
-  $("#sync").textContent=syncText();
+  $("#sync").textContent=syncText(); $("#sync").classList.toggle("loading",!SHARED.at);
   $("#banner").innerHTML = SHARED.error==="noapi" ? `<div class="banner">Esta páxina aínda non está conectada á folla compartida, así que de momento non se pode marcar a asistencia.</div>`
     : SHARED.error==="red" && !SHARED.at ? `<div class="banner err">Non se puido cargar quen vai. Comproba a conexión e recarga a páxina.</div>` : "";
   const s=state(me);
