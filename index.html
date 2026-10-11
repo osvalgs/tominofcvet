@@ -126,6 +126,8 @@ li.mine .name::after{content:" (ti)";font-weight:400;color:var(--muted)}
 .tip{font-size:.88rem;color:var(--muted);text-align:justify}
 .sync.loading{color:var(--grana);font-weight:700;animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.45}}
+.votnow{border:2px solid var(--grana)}
+.votnow .btn{align-self:flex-start}
 footer{padding:0 16px 30px;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 footer a{color:var(--muted)}
 </style>
@@ -137,6 +139,7 @@ footer a{color:var(--muted)}
 </section>
 <main>
   <div id="banner"></div>
+  <div class="panel votnow" id="votnow" hidden></div>
   <div class="panel official" id="official" hidden></div>
   <div class="panel me">
     <h2>Vas o sábado?</h2>
@@ -272,6 +275,9 @@ function render(){
   const dia=FX?fmtD(FX.fecha,{weekday:"long",day:"numeric"}):"";
   $("#meNote").textContent = !FX ? "Non hai partidos pendentes no calendario." : !me ? "Escolle o teu nome e marca se podes ir. Verao todo o equipo e o adestrador."
     : s==="va" ? "Apuntado: vas o "+dia+"." : s==="tarde" ? "Apuntado: vas o "+dia+", pero chegas tarde." : s==="antes" ? "Apuntado: vas o "+dia+", pero marchas antes." : s==="no" ? "Apuntado que non podes ir. Se cambias de idea, toca outra opción." : "Aínda non respondiches para este partido.";
+  const vt=SHARED.votacion, vtOpen=vt&&!vt.pechada&&!(vt.ata&&Date.now()>vt.ata);
+  $("#votnow").hidden=!vtOpen;
+  if(vtOpen) $("#votnow").innerHTML=`<div class="row between"><h2>Votación aberta</h2><span class="note">pecha o ${new Date(vt.ata).toLocaleDateString("gl-ES",{weekday:"long",day:"numeric"})}</span></div><p>${esc(vt.pregunta)}</p><a class="btn" href="votacion.html">Ir votar</a>`;
   // convocatoria publicada
   const conv=FX && SHARED.convocatorias.find(c=>c.fecha===FX.fecha), off=$("#official");
   if(conv){ off.hidden=false;

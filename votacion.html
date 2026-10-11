@@ -130,14 +130,7 @@ footer a{color:var(--muted)}
 <main>
   <div id="banner"></div>
   <div class="panel" id="main"></div>
-  <details class="panel coach" id="coach"><summary>Zona do adestrador · preparar votación</summary>
-    <div id="gate">
-      <p class="note">Escribe o PIN do adestrador para preparar ou pechar votacións.</p>
-      <div class="row"><label class="f" for="inPin">PIN<input id="inPin" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" style="width:10em"></label>
-      <button class="btn" id="pinGo" style="align-self:flex-end">Entrar</button></div>
-    </div>
-    <div id="cpanel" hidden></div>
-  </details>
+  <p class="note" style="text-align:center"><a href="entrenador.html#votacions">Zona do adestrador · preparar votacións</a></p>
 </main>
 <footer><span class="sync" id="sync">Cargando…</span><a href="index.html">Páxina do equipo</a></footer>
 <div class="toast" id="toast" hidden></div>
@@ -273,51 +266,8 @@ function render(){
       ${tot===0?`<p class="muted">Non votou ninguén.</p>`:wins.length===1?`<p><span class="chip gold">Gaña a opción ${wins[0].k}</span> ${esc(wins[0].o)} (${Math.round(wins[0].n/tot*100)}%).</p>`:`<p class="muted">Empate. Pódese repetir a votación ou que decida o adestrador.</p>`}`;
   }
   $("#main").innerHTML=h;
-  renderCoach();
 }
-function renderCoach(){
-  $("#gate").hidden=PINOK; $("#cpanel").hidden=!PINOK; if(!PINOK){ if(!$("#inPin").value&&PIN) $("#inPin").value=PIN; return; }
-  const v=V(), abierta=v&&!v.pechada;
-  let h="";
-  if(abierta) h+=`<div class="panel"><h3>Votación en curso</h3><p><b>${esc(v.pregunta)}</b></p><p class="note">Pecha o ${esc(fmtAta(v.ata))} · ${v.total||0} votos ata agora.</p>
-    <div class="row"><a class="wa" href="${waLink(inviteText(v))}" target="_blank" rel="noopener">${WA_SVG}Enviar ao grupo</a>
-    ${UIV.closeAsk?`<span class="note">Pecharase xa e verase o resultado.</span><button class="btn" data-c="closeYes">Si, pechar</button><button class="btn ghost" data-c="closeNo">Cancelar</button>`:`<button class="btn ghost" data-c="close">Pechar agora</button>`}</div></div>`;
-  if(v&&v.pechada) h+=`<div class="panel"><h3>Última votación</h3><p><b>${esc(v.pregunta)}</b> · ${v.total||0} votos</p><div class="row"><a class="wa" href="${waLink(resultsText(v))}" target="_blank" rel="noopener">${WA_SVG}Compartir resultado</a></div></div>`;
-  h+=`<div class="panel"><h3>${abierta?"Substituír por unha votación nova":"Preparar votación nova"}</h3>
-    <label class="f" for="vQ">Pregunta<input id="vQ" maxlength="200" value="${esc(UIV.q??DEF_Q)}"></label>
-    <label class="f" for="vO">Opcións (unha por liña, de 2 a 6)<textarea id="vO" rows="4">${esc(UIV.o??DEF_OPTS.join("\n"))}</textarea></label>
-    <div class="row"><label class="f" for="vAta">Pecha o<input id="vAta" type="datetime-local" value="${esc(UIV.ata??defDeadline())}"></label>
-      <div class="row" style="gap:6px;align-self:flex-end">${[1,2,3,7].map(d=>`<button class="btn ghost sm" data-c="plazo" data-d="${d}">${d} día${d>1?"s":""}</button>`).join("")}</div></div>
-    ${abierta?`<p class="note">A votación actual pecharase e esta substituiraa.</p>`:""}
-    <div class="row"><button class="btn" data-c="create" ${UIV.busy?"disabled":""}>${UIV.busy?"Creando o formulario…":"Crear votación"}</button></div>
-    <p class="note">Créase un formulario de Google á túa conta: unha resposta por persoa, sen recoller correos. Ao rematar o prazo péchase só e o resultado aparece aquí para todos.</p></div>
-    <p class="note"><a href="#" data-c="logout">Saír da zona do adestrador</a></p>`;
-  $("#cpanel").innerHTML=h;
-}
-async function entrar(){ const p=$("#inPin").value.trim(); if(!p) return; try{ await apiPost({action:"comprobarPin",pin:p}); PIN=p; PINOK=true;
-    try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); L.pin=p; L.ok=true; localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(e){} render(); }
-  catch(e){ toast(e&&e.error==="pin"?"PIN incorrecto":"Non se puido comprobar. Revisa a conexión."); } }
-$("#pinGo").addEventListener("click",entrar);
-$("#inPin").addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
-document.addEventListener("input",e=>{ if(e.target.id==="vQ") UIV.q=e.target.value; if(e.target.id==="vO") UIV.o=e.target.value; if(e.target.id==="vAta") UIV.ata=e.target.value; });
-document.addEventListener("click",async e=>{
-  const b=e.target.closest("[data-c]"); if(!b) return; e.preventDefault(); const c=b.dataset.c;
-  if(c==="plazo"){ const d=new Date(); d.setDate(d.getDate()+Number(b.dataset.d)); d.setHours(21,0,0,0); const p=n=>String(n).padStart(2,"0"); UIV.ata=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T21:00`; renderCoach(); return; }
-  if(c==="logout"){ PINOK=false; try{ const L=JSON.parse(localStorage.getItem("tomino_entrenador")||"{}"); L.ok=false; localStorage.setItem("tomino_entrenador",JSON.stringify(L)); }catch(x){} render(); return; }
-  if(c==="close"){ UIV.closeAsk=true; renderCoach(); return; }
-  if(c==="closeNo"){ UIV.closeAsk=false; renderCoach(); return; }
-  if(c==="closeYes"){ UIV.closeAsk=false; b.disabled=true; try{ await apiPost({action:"pecharVotacion",pin:PIN}); toast("Votación pechada: xa se ve o resultado"); }catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":x&&x.error==="acción desconocida"?"Hai que actualizar o script da folla de Google":"Non se puido pechar. Téntao de novo."); } await apiGet(); render(); return; }
-  if(c==="create"){
-    const q=($("#vQ").value||"").trim(), ops=($("#vO").value||"").split("\n").map(s=>s.trim()).filter(Boolean), ataS=$("#vAta").value, ata=ataS?new Date(ataS).getTime():0;
-    if(!q){ toast("Escribe a pregunta"); return; } if(ops.length<2||ops.length>6){ toast("Pon entre 2 e 6 opcións, unha por liña"); return; }
-    if(!ata||ata<Date.now()+10*6e4){ toast("O peche ten que ser polo menos dentro de 10 minutos"); return; }
-    UIV.busy=true; renderCoach();
-    try{ await apiPost({action:"crearVotacion",pin:PIN,pregunta:q,opcions:ops,ata}); await apiGet(); toast("Votación creada. Envíaa ao grupo."); UIV.q=UIV.o=UIV.ata=undefined; }
-    catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":x&&x.error==="acción desconocida"?"Hai que actualizar o script da folla de Google":"Non se puido crear: "+(x&&x.error?x.error:"sen conexión")); }
-    UIV.busy=false; render(); return; }
-});
 onShared=()=>{ const ae=document.activeElement; if(ae&&/INPUT|TEXTAREA/.test(ae.tagName)) return; render(); };
-if(location.hash==="#adestrador") $("#coach").open=true;
 render();
 apiGet().then(render);
 setInterval(()=>{ if(!document.hidden){ const v=V(); if(v&&v.porPechar) apiGet().then(render); else if(!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))) apiGet().then(render); } },30000);
