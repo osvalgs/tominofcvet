@@ -162,17 +162,28 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTi
 /* Almacén compartido (hoja de Google) */
 const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
+/* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
+function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
+function normHora(v){ v=String(v||""); if(!v||/^\d{1,2}:\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+function normalize(j){
+  const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=Object.assign(av[f]||{},j.avail[k]); });
+  const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||""}; });
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa};
+}
+let PENDING=0;
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
-  try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json(); Object.assign(SHARED,j,{ok:true,error:null,at:new Date()}); }
+  try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json(); if(PENDING) return SHARED; Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); }
   catch(e){ SHARED.error="red"; }
   return SHARED;
 }
 async function apiPost(body){
   if(!apiReady()) throw {error:"noapi"};
-  const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
-  const j=await r.json(); if(!j.ok) throw j;
-  Object.assign(SHARED,j,{ok:true,error:null,at:new Date()}); return j;
+  PENDING++;
+  try{ const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
+    const j=await r.json(); if(!j.ok) throw j;
+    if(PENDING===1) Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); return j; }
+  finally{ PENDING--; }
 }
 function syncText(){
   if(SHARED.error==="noapi") return "La hoja compartida aún no está conectada.";
@@ -203,12 +214,12 @@ function render(){
   $("#sync").textContent=syncText();
   $("#banner").innerHTML = SHARED.error==="noapi" ? `<div class="banner">Esta página todavía no está conectada a la hoja compartida, así que de momento no se puede marcar asistencia.</div>`
     : SHARED.error==="red" && !SHARED.at ? `<div class="banner err">No se ha podido cargar quién va. Comprueba la conexión y recarga la página.</div>` : "";
-  const can=!!(FX && me && apiReady() && SHARED.at);
+  const can=!!(FX && me && apiReady() && SHARED.at && !BUSY);
   const s=state(me);
   $("#bYes").disabled=!can; $("#bNo").disabled=!can;
   $("#bYes").classList.toggle("on",s==="va"); $("#bNo").classList.toggle("on",s==="no");
   $("#meNote").textContent = !FX ? "No hay partidos pendientes en el calendario." : !me ? "Elige tu nombre y marca si puedes ir. Lo verá todo el equipo y el entrenador."
-    : s==="va" ? "Apuntado: vas el "+fmtD(FX.fecha,{weekday:"long",day:"numeric"})+". Toca otra vez para quitarlo." : s==="no" ? "Apuntado que no puedes ir. Si cambias de idea, toca Voy." : "Todavía no has respondido para este partido.";
+    : s==="va" ? "Apuntado: vas el "+fmtD(FX.fecha,{weekday:"long",day:"numeric"})+". Si al final no puedes, toca No voy." : s==="no" ? "Apuntado que no puedes ir. Si cambias de idea, toca Voy." : "Todavía no has respondido para este partido.";
   // convocatoria publicada
   const conv=FX && SHARED.convocatorias.find(c=>c.fecha===FX.fecha);
   const off=$("#official");
@@ -232,13 +243,13 @@ function render(){
     <a class="mini-map" href="${c.maps}" target="_blank" rel="noopener">${PIN_SVG}Mapa</a></li>`; }).join("")||'<li class="note">No quedan partidos en el calendario actual.</li>';
 }
 sel.addEventListener("change",()=>{ me=sel.value; try{localStorage.setItem("tomino_soy",me)}catch(e){} render(); });
+let BUSY=false;
 async function mark(v){
-  if(!FX||!me) return; const cur=state(me), next=cur===v?"":v;
-  $("#bYes").disabled=$("#bNo").disabled=true;
-  (SHARED.avail[FX.fecha]=SHARED.avail[FX.fecha]||{})[me]=next; render();
-  try{ await apiPost({action:"avail",fecha:FX.fecha,jugador:me,estado:next}); toast(next==="va"?"Apuntado: vas":next==="no"?"Apuntado: no vas":"Respuesta quitada"); }
+  if(!FX||!me||BUSY) return; const cur=state(me); if(cur===v) return;
+  BUSY=true; (SHARED.avail[FX.fecha]=SHARED.avail[FX.fecha]||{})[me]=v; render();
+  try{ await apiPost({action:"avail",fecha:FX.fecha,jugador:me,estado:v}); toast(v==="va"?"Apuntado: vas":"Apuntado: no vas"); }
   catch(e){ SHARED.avail[FX.fecha][me]=cur; toast("No se pudo guardar. Inténtalo de nuevo."); }
-  render();
+  BUSY=false; render();
 }
 $("#bYes").addEventListener("click",()=>mark("va"));
 $("#bNo").addEventListener("click",()=>mark("no"));

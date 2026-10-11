@@ -170,17 +170,28 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.hidden=false; clearTi
 /* Almacén compartido (hoja de Google) */
 const SHARED={avail:{},convocatorias:[],partidos:{},ok:false,error:null,at:null};
 const apiReady=()=>/^https:\/\/script\.google/.test(API);
+/* La hoja puede devolver fechas u horas convertidas a su formato: se normalizan aquí */
+function normFecha(v){ v=String(v||""); if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:iso(d); }
+function normHora(v){ v=String(v||""); if(!v||/^\d{1,2}:\d{2}$/.test(v)) return v; const d=new Date(v); return isNaN(d)?v:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+function normalize(j){
+  const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=Object.assign(av[f]||{},j.avail[k]); });
+  const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||""}; });
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa};
+}
+let PENDING=0;
 async function apiGet(){
   if(!apiReady()){ SHARED.error="noapi"; return SHARED; }
-  try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json(); Object.assign(SHARED,j,{ok:true,error:null,at:new Date()}); }
+  try{ const r=await fetch(API+"?t="+Date.now()); const j=await r.json(); if(PENDING) return SHARED; Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); }
   catch(e){ SHARED.error="red"; }
   return SHARED;
 }
 async function apiPost(body){
   if(!apiReady()) throw {error:"noapi"};
-  const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
-  const j=await r.json(); if(!j.ok) throw j;
-  Object.assign(SHARED,j,{ok:true,error:null,at:new Date()}); return j;
+  PENDING++;
+  try{ const r=await fetch(API,{method:"POST",body:JSON.stringify(body)});
+    const j=await r.json(); if(!j.ok) throw j;
+    if(PENDING===1) Object.assign(SHARED,normalize(j),{ok:true,error:null,at:new Date()}); return j; }
+  finally{ PENDING--; }
 }
 function syncText(){
   if(SHARED.error==="noapi") return "La hoja compartida aún no está conectada.";
@@ -343,7 +354,7 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-a]"); if(!b||b.disabled) return; const a=b.dataset.a, c=fx();
   if(a==="open"){ UI.open[b.dataset.f]=!UI.open[b.dataset.f]; render(); return; }
   if(a==="reload"){ await apiGet(); render(); toast("Actualizado"); return; }
-  if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), nx=cur===b.dataset.v?"":b.dataset.v; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
+  if(a==="av"){ const n=b.dataset.n, cur=av(c.fecha,n), nx=cur===b.dataset.v?"":b.dataset.v; if(b.dataset.busy) return; (SHARED.avail[c.fecha]=SHARED.avail[c.fecha]||{})[n]=nx; render();
     try{ await apiPost({action:"avail",fecha:c.fecha,jugador:n,estado:nx}); }catch(x){ SHARED.avail[c.fecha][n]=cur; toast("No se pudo guardar"); } render(); return; }
   if(a==="force"){ const f=new Set(L.forced[c.fecha]||[]); f.add(b.dataset.n); L.forced[c.fecha]=[...f]; saveL(); render(); return; }
   if(a==="unforce"){ const f=new Set(L.forced[c.fecha]||[]); if(!f.delete(b.dataset.n)) return; L.forced[c.fecha]=[...f]; saveL(); render(); return; }
