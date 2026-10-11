@@ -456,10 +456,13 @@ function rSeg(){
     <div class="row"><a class="wa" href="${waLink(planText(c,d))}" target="_blank" rel="noopener">${WA_SVG}Compartir antes do partido</a><span class="note">Sistema, aliñación, banco e plan.</span></div></div>`;
   // 2. Durante / despois
   const dur=Number(d.duracion)||90;
+  const listo=sq.src==="acta"||sq.src==="convocatoria"||d.once.some(Boolean);
+  const minNames=sq.src==="acta"||sq.src==="convocatoria"?sq.names:d.once.filter(Boolean).concat(Object.keys(d.minutos||{}).filter(n=>!d.once.includes(n)));
   h+=`<div class="panel"><h2>Durante e despois</h2>
     <div class="row"><label class="f" for="inDur">Duración do partido (min)<input id="inDur" type="number" min="20" max="120" value="${dur}" style="width:6em"></label>
-    <button class="btn ghost sm" data-a="minFull" style="align-self:flex-end">Titulares: partido enteiro</button></div>
-    <ul class="list mins">${sq.names.map(n=>{ const t=d.once.includes(n)||(!d.once.some(Boolean)&&sq.tit.includes(n)); const m=d.minutos[n]; const les=d.lesion[n]; return `<li><span class="num">${dorsalDe(n)}</span><span class="name">${esc(corto(n))}${t?` <span class="tag">T</span>`:""}</span>
+    <button class="btn ghost sm" data-a="minFull" style="align-self:flex-end" ${listo?"":"hidden"}>Titulares: partido enteiro</button></div>
+    ${!listo?`<p class="banner">Os xogadores aparecerán aquí cando publiques a convocatoria ou fagas a aliñación deste partido.</p>`:""}
+    <ul class="list mins" ${listo?"":"hidden"}>${minNames.map(n=>{ const t=d.once.includes(n)||(!d.once.some(Boolean)&&sq.tit.includes(n)); const m=d.minutos[n]; const les=d.lesion[n]; return `<li><span class="num">${dorsalDe(n)}</span><span class="name">${esc(corto(n))}${t?` <span class="tag">T</span>`:""}</span>
       <input class="min" type="number" min="0" max="${dur}" inputmode="numeric" placeholder="min" data-min="${esc(n)}" value="${m??""}">
       <button class="lesb ${les?"on":""}" data-a="les" data-n="${esc(n)}">${les?"Lesionado ✓":"Lesionado"}</button></li>`; }).join("")}</ul>
     ${Object.keys(d.lesion).filter(n=>d.lesion[n]).length?`<label class="f" for="tLes">Lesións (que lle pasou a cada un)${micBtn("tLes")}<textarea id="tLes" data-k="lesionNota" rows="2">${esc(d.lesionNota||"")}</textarea></label>`:""}
