@@ -105,6 +105,7 @@ ul.list li:last-child{border-bottom:0}
 .big button.tarde.on,.big button.antes.on{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
 .big button.no.on{background:var(--no);border-color:var(--no)}
 .big button:disabled{opacity:.5;cursor:default}
+.big button.dim{opacity:.55}
 .who{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .who h3 b{color:var(--ink)}
 li.mine .name{font-weight:700}
@@ -246,8 +247,8 @@ function render(){
   $("#sync").textContent=syncText();
   $("#banner").innerHTML = SHARED.error==="noapi" ? `<div class="banner">Esta páxina aínda non está conectada á folla compartida, así que de momento non se pode marcar a asistencia.</div>`
     : SHARED.error==="red" && !SHARED.at ? `<div class="banner err">Non se puido cargar quen vai. Comproba a conexión e recarga a páxina.</div>` : "";
-  const can=!!(FX && me && apiReady() && SHARED.at && !BUSY), s=state(me);
-  document.querySelectorAll("#big button").forEach(b=>{ b.disabled=!can; b.classList.toggle("on",s===b.dataset.v); });
+  const s=state(me);
+  document.querySelectorAll("#big button").forEach(b=>{ b.disabled=BUSY; b.classList.toggle("on",s===b.dataset.v); b.classList.toggle("dim",!me); });
   const dia=FX?fmtD(FX.fecha,{weekday:"long",day:"numeric"}):"";
   $("#meNote").textContent = !FX ? "Non hai partidos pendentes no calendario." : !me ? "Escolle o teu nome e marca se podes ir. Verao todo o equipo e o adestrador."
     : s==="va" ? "Apuntado: vas o "+dia+"." : s==="tarde" ? "Apuntado: vas o "+dia+", pero chegas tarde." : s==="antes" ? "Apuntado: vas o "+dia+", pero marchas antes." : s==="no" ? "Apuntado que non podes ir. Se cambias de idea, toca outra opción." : "Aínda non respondiches para este partido.";
@@ -275,10 +276,15 @@ function render(){
 }
 sel.addEventListener("change",()=>{ me=sel.value; try{localStorage.setItem("tomino_soy",me)}catch(e){} render(); });
 async function mark(v){
-  if(!FX||!me||BUSY) return; const cur=state(me); if(cur===v) return;
+  if(BUSY) return;
+  if(!FX){ toast("Non hai partidos pendentes no calendario"); return; }
+  if(!me){ toast("Primeiro escolle o teu nome na lista"); sel.focus(); sel.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  if(!apiReady()){ toast("A páxina non está conectada á folla compartida"); return; }
+  if(!SHARED.at){ toast("Aínda non se puido cargar a folla. Agarda un momento ou recarga."); apiGet().then(render); return; }
+  const cur=state(me); if(cur===v) return;
   BUSY=true; (SHARED.avail[FX.fecha]=SHARED.avail[FX.fecha]||{})[me]=v; render();
   try{ await apiPost({action:"avail",fecha:FX.fecha,jugador:me,estado:v}); toast("Gardado: "+ESTADOS[v].toLowerCase()); }
-  catch(e){ SHARED.avail[FX.fecha][me]=cur; toast("Non se puido gardar. Téntao de novo."); }
+  catch(e){ SHARED.avail[FX.fecha][me]=cur; toast(e&&e.error?"Non se gardou: erro da folla ("+e.error+")":"Non se gardou: sen conexión coa folla. Téntao de novo."); }
   BUSY=false; render();
 }
 $("#big").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b&&!b.disabled) mark(b.dataset.v); });
