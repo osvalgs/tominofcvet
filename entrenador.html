@@ -392,7 +392,7 @@ function rConv(){
     <span class="meta">${esc(fmtD(c.fecha))} · ${esc(c.campo)}${c.superficie?" · "+c.superficie.toLowerCase():""}</span>
     ${avisos(c).map(a=>`<span class="aviso">${esc(a)}</span>`).join("")}<a class="maps" href="${c.maps}" target="_blank" rel="noopener" style="background:var(--grana);color:var(--grana-ink)">${PIN_SVG}Como chegar</a></div>
     <div class="row"><label class="f" for="inHora">Hora<input type="time" id="inHora" value="${esc(p.hora||c.hora||"")}"></label>
-    <label class="f" for="inNota" style="flex:1 1 14em">Aviso para os xogadores<input id="inNota" maxlength="140" placeholder="Sen aviso" value="${esc(notaDe(c))}"></label>
+    <label class="f" for="inNota" style="flex:1 1 100%">Aviso para os xogadores<textarea id="inNota" maxlength="140" rows="2" placeholder="Sen aviso" style="resize:vertical;width:100%">${esc(notaDe(c))}</textarea></label>
     <button class="btn ghost" data-a="saveMatch" style="align-self:flex-end">Gardar hora e aviso</button></div>
     <div class="row"><a class="wa" href="${waLink(askText(c))}" target="_blank" rel="noopener">${WA_SVG}Pedir asistencia</a><span class="note">Mensaxe para o grupo co partido, a hora e a ligazón para marcar se van. Garda antes a hora.</span></div>
     <p class="note">Por defecto o aviso é quedar 45 minutos antes no campo. Podes cambialo ou borralo para este partido.</p></div>`;
