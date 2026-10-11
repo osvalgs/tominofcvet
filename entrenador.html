@@ -452,7 +452,8 @@ function rSeg(){
     ${UI.slot!=null?`<div class="picker"><div class="row between"><h3>${pos[UI.slot][0]} · escolle xogador</h3><button class="btn ghost sm" data-a="slotNone">Pechar</button></div>
       <div class="chipsel">${d.once[UI.slot]?`<button class="pk out" data-a="pick" data-n="">Quitar</button>`:""}${sq.names.concat(jugadores().map(p=>p.nombre).filter(n=>!sq.names.includes(n))).map(n=>{ const used=d.once.indexOf(n); return `<button class="pk ${used>=0?"used":""} ${sq.names.includes(n)?"":"far"}" data-a="pick" data-n="${esc(n)}">${dorsalDe(n)!==""?dorsalDe(n)+" · ":""}${esc(corto(n))}${used>=0?` <small>(${pos[used][0]})</small>`:""}</button>`; }).join("")}</div></div>`:`<p class="note">Toca unha posición do campo para poñer un xogador.</p>`}
     <p class="note">No banco: ${sq.names.filter(n=>!d.once.includes(n)).map(n=>esc(corto(n))).join(", ")||"ninguén"}.</p>
-    <label class="f" for="tPlan">Plan e instrucións (rival, balón parado, quen tira os penaltis…)${micBtn("tPlan")}<textarea id="tPlan" data-k="plan" rows="4">${esc(d.plan)}</textarea></label></div>`;
+    <label class="f" for="tPlan">Plan e instrucións (rival, balón parado, quen tira os penaltis…)${micBtn("tPlan")}<textarea id="tPlan" data-k="plan" rows="4">${esc(d.plan)}</textarea></label>
+    <div class="row"><a class="wa" href="${waLink(planText(c,d))}" target="_blank" rel="noopener">${WA_SVG}Compartir antes do partido</a><span class="note">Sistema, aliñación, banco e plan.</span></div></div>`;
   // 2. Durante / despois
   const dur=Number(d.duracion)||90;
   h+=`<div class="panel"><h2>Durante e despois</h2>
@@ -465,11 +466,13 @@ function rSeg(){
     <label class="f" for="tCam">Cambios de sistema ou de táctica (minuto e motivo)${micBtn("tCam")}<textarea id="tCam" data-k="cambios" rows="2" placeholder="Ex.: min 50, pasamos a 4-3-3 para apretar arriba">${esc(d.cambios)}</textarea></label>
     <label class="f" for="tAci">Aciertos${micBtn("tAci")}<textarea id="tAci" data-k="aciertos" rows="3">${esc(d.aciertos)}</textarea></label>
     <label class="f" for="tMel">A mellorar${micBtn("tMel")}<textarea id="tMel" data-k="mellorar" rows="3">${esc(d.mellorar)}</textarea></label>
-    <label class="f" for="tNot">Outras notas${micBtn("tNot")}<textarea id="tNot" data-k="notas" rows="3">${esc(d.notas)}</textarea></label></div>
-    <div class="row"><a class="wa" href="${waLink(lineupText(c,d))}" target="_blank" rel="noopener" ${d.once.some(Boolean)?"":"hidden"}>${WA_SVG}Compartir aliñación</a>${d.once.some(Boolean)?`<span class="note">Só se envía o sistema, a aliñación e o banco; as notas non.</span>`:""}</div>
+    <label class="f" for="tNot">Outras notas${micBtn("tNot")}<textarea id="tNot" data-k="notas" rows="3">${esc(d.notas)}</textarea></label>
+    <div class="row"><a class="wa" href="${waLink(resumoText(c,d))}" target="_blank" rel="noopener">${WA_SVG}Compartir durante e despois</a><span class="note">Resultado, minutos, lesións, cambios, aciertos, a mellorar e notas.</span></div></div>
     <div class="savebar"><span class="note" id="dirtyNote">${UI.draft.dirty?"Hai cambios sen gardar":SEG[c.fecha]?"Gardado":"Aínda sen gardar"}</span><button class="btn" data-a="segSave" ${SEGOK===true?"":"disabled"}>Gardar seguimento</button></div>`;
   el.innerHTML=h;
 }
+function refreshShare(){ if(L.tab!=="seg"||!UI.draft) return; const c=segFixture(), d=UI.draft.d;
+  document.querySelectorAll("#t-seg a.wa").forEach(a=>{ a.href=waLink(/antes/.test(a.textContent)?planText(c,d):resumoText(c,d)); }); }
 function markDirty(){ if(UI.draft){ UI.draft.dirty=true; const n=$("#dirtyNote"); if(n) n.textContent="Hai cambios sen gardar"; } }
 
 /* ---------- Estatísticas por xogador ---------- */
@@ -526,6 +529,18 @@ function lineupText(c,d){
   ["Porteiro","Defensa","Medio","Diante"].forEach(k=>{ if(g[k].length) t+=`${k}: ${g[k].sort((a,b)=>a.x-b.x).map(v=>v.t).join(" · ")}\n`; });
   if(banco.length) t+=`\n*Banco:* ${banco.map(n=>corto(n)).join(", ")}`;
   return t;
+}
+function planText(c,d){ let t=lineupText(c,d); if(d.plan&&d.plan.trim()) t+=`\n\n*Plan e instrucións*\n${d.plan.trim()}`; return t; }
+function resumoText(c,d){
+  const o=outcome(c), m=DATA.partidos.find(p=>p.fecha===c.fecha);
+  let t=`*TOMIÑO F.C. VETERANOS*\nXornada ${c.jornada}: ${vsText(c)}${o?` · *${c.enCasa?o.us+"-"+o.them:o.them+"-"+o.us}*`:""}\n${fmtD(c.fecha)}\n`;
+  if(m){ const g=m.goles.filter(x=>x.tipo!=="propia"); if(g.length) t+=`⚽ ${g.map(x=>corto(x.nombre)+" "+x.min+"'").join(", ")}\n`; }
+  const mins=Object.keys(d.minutos||{}).filter(n=>d.minutos[n]!==""&&d.minutos[n]!=null).sort((a,b)=>d.minutos[b]-d.minutos[a]);
+  if(mins.length) t+=`\n*Minutos (de ${Number(d.duracion)||90})*\n`+mins.map(n=>`${dorsalDe(n)!==""?dorsalDe(n)+". ":""}${corto(n)}: ${d.minutos[n]}'`).join("\n")+"\n";
+  const les=Object.keys(d.lesion||{}).filter(n=>d.lesion[n]);
+  if(les.length) t+=`\n*Lesionados:* ${les.map(n=>corto(n)).join(", ")}${d.lesionNota&&d.lesionNota.trim()?"\n"+d.lesionNota.trim():""}\n`;
+  [["cambios","Cambios de táctica"],["aciertos","Aciertos"],["mellorar","A mellorar"],["notas","Notas"]].forEach(([k,l])=>{ if(d[k]&&d[k].trim()) t+=`\n*${l}*\n${d[k].trim()}\n`; });
+  return t.trim();
 }
 function resultsText(){
   let w=0,dr=0,l=0,gf=0,gc=0, lines=[];
@@ -645,6 +660,7 @@ document.addEventListener("input",e=>{
   if(t.dataset&&t.dataset.k){ UI.draft.d[t.dataset.k]=t.value; markDirty(); }
   if(t.dataset&&t.dataset.min!==undefined){ UI.draft.d.minutos[t.dataset.min]=t.value===""?"":Math.max(0,parseInt(t.value)||0); markDirty(); }
   if(t.id==="inDur"){ UI.draft.d.duracion=parseInt(t.value)||90; markDirty(); }
+  refreshShare();
 });
 document.addEventListener("click",e=>{ const r=e.target.closest("tr.prow"); if(r){ UI.player=UI.player===r.dataset.p?null:r.dataset.p; render(); const f=$("#ficha"); if(f&&UI.player) f.scrollIntoView({behavior:"smooth",block:"start"}); } });
 document.addEventListener("change",e=>{
