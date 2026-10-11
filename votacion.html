@@ -175,7 +175,9 @@ function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
   const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=av[f]||{}; Object.keys(j.avail[k]).forEach(n=>{ const v=j.avail[k][n]; if(v&&v!=="-") av[f][n]=v; else delete av[f][n]; }); });
   const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||"",notaGardada:j.partidos[k].nota!==undefined&&j.partidos[k].nota!==null&&String(j.partidos[k].nota)!=="__defecto__"}; });
-  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:j.votacion||null};
+  /* Unha votación pechada que o adestrador eliminou xa non se amosa a ninguén */
+  let vot=j.votacion||null; const oc=pa.VOT_OCULTA; if(vot&&oc&&oc.nota&&String(vot.creada)===String(oc.nota)) vot=null;
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:vot};
 }
 /* Mentres hai gardados en curso non se aplican lecturas que poidan estar atrasadas;
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */

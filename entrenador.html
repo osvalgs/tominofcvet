@@ -275,7 +275,9 @@ function normalize(j){
   /* "-" é "sen resposta": así quitar unha resposta funciona aínda que a folla non borre filas */
   const av={}; Object.keys(j.avail||{}).forEach(k=>{ const f=normFecha(k); av[f]=av[f]||{}; Object.keys(j.avail[k]).forEach(n=>{ const v=j.avail[k][n]; if(v&&v!=="-") av[f][n]=v; else delete av[f][n]; }); });
   const pa={}; Object.keys(j.partidos||{}).forEach(k=>{ pa[normFecha(k)]={hora:normHora(j.partidos[k].hora),nota:j.partidos[k].nota||"",notaGardada:j.partidos[k].nota!==undefined&&j.partidos[k].nota!==null&&String(j.partidos[k].nota)!=="__defecto__"}; });
-  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:j.votacion||null};
+  /* Unha votación pechada que o adestrador eliminou xa non se amosa a ninguén */
+  let vot=j.votacion||null; const oc=pa.VOT_OCULTA; if(vot&&oc&&oc.nota&&String(vot.creada)===String(oc.nota)) vot=null;
+  return {avail:av,convocatorias:(j.convocatorias||[]).map(c=>({...c,fecha:normFecha(c.fecha)})),partidos:pa,votacion:vot};
 }
 /* Mentres hai gardados en curso non se aplican lecturas que poidan estar atrasadas;
    ao rematar o último gárdado vólvese ler sempre, aínda que algún fallase */
@@ -651,7 +653,8 @@ function rVot(){
     h+=`<div class="panel"><div class="row between"><h2>Última votación</h2><span class="chip grana">Pechada · ${tot} votos</span></div><p><b>${esc(v.pregunta)}</b></p>
       ${v.resultados?`<div class="vres">${en.map(x=>`<div class="vr ${w.length===1&&w[0].k===x.k?"win":""}"><span class="l">${x.k}</span><span>${esc(x.o)}</span><span class="n">${x.n}</span><div class="bar"><i style="width:${tot?Math.round(x.n/tot*100):0}%"></i></div></div>`).join("")}</div>
       <p>${tot===0?"Non votou ninguén.":w.length===1?`<span class="chip gold">Gaña a opción ${w[0].k}</span> ${esc(w[0].o)}`:"Empate."}</p>
-      <div class="row"><a class="wa" href="${waLink(vResults(v))}" target="_blank" rel="noopener">${WA_SVG}Compartir resultado</a></div>`:`<p class="muted">Pechando… preme Actualizar nun momento.</p>`}</div>`; }
+      <div class="row"><a class="wa" href="${waLink(vResults(v))}" target="_blank" rel="noopener">${WA_SVG}Compartir resultado</a>
+      ${UIVo.delAsk?`<span class="note">Desaparecerá para todos. O formulario segue no teu Google Drive por se o queres consultar.</span><button class="btn" data-a="vDelYes">Si, eliminar</button><button class="btn ghost" data-a="vDelNo">Cancelar</button>`:`<button class="btn ghost" data-a="vDel">Eliminar</button>`}</div>`:`<p class="muted">Pechando… preme Actualizar nun momento.</p>`}</div>`; }
   else h+=`<div class="panel"><h2>Non hai votacións</h2><p class="muted">Prepara a primeira aquí abaixo.</p></div>`;
   h+=`<div class="panel"><h2>${aberta?"Substituír por unha votación nova":"Preparar votación nova"}</h2>
     <label class="f" for="vQ">Pregunta<input id="vQ" maxlength="200" value="${esc(UIVo.q??VDEF_Q)}"></label>
@@ -709,6 +712,11 @@ document.addEventListener("click",async e=>{
   const tb=e.target.closest("nav button"); if(tb){ L.tab=tb.dataset.tab; UI.copy=""; saveL(); render(); window.scrollTo(0,0); if(!(UI.draft&&UI.draft.dirty)) apiGet().then(()=>{ if(L.tab===tb.dataset.tab) render(); }); return; }
   const th=e.target.closest("th[data-k]"); if(th){ const k=th.dataset.k; if(k==="strip") return; if(k===UI.sortK) UI.sortDir*=-1; else { UI.sortK=k; UI.sortDir=(k==="nombre"||k==="dorsal")?1:-1; } render(); return; }
   const b=e.target.closest("[data-a]"); if(!b||b.disabled) return; const a=b.dataset.a, c=fx();
+  if(a==="vDel"){ UIVo.delAsk=true; render(); return; }
+  if(a==="vDelNo"){ UIVo.delAsk=false; render(); return; }
+  if(a==="vDelYes"){ UIVo.delAsk=false; const v=SHARED.votacion; if(!v) return; b.disabled=true;
+    try{ await apiPost({action:"partido",fecha:"VOT_OCULTA",hora:"",nota:String(v.creada),pin:L.pin}); await apiGet(); toast("Votación eliminada"); }
+    catch(x){ toast(x&&x.error==="pin"?"PIN incorrecto":"Non se puido eliminar. Téntao de novo."); } render(); return; }
   if(a==="vPlazo"){ UIVo.ata=vDeadline(Number(b.dataset.d)); render(); return; }
   if(a==="vClose"){ UIVo.closeAsk=true; render(); return; }
   if(a==="vCloseNo"){ UIVo.closeAsk=false; render(); return; }
