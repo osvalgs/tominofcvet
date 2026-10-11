@@ -379,22 +379,21 @@ function rAju(){
 
 function askText(c){
   const p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
-  let t=`*TOMIÑO F.C. VETERANOS*\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\nComo chegar: ${c.maps}\n`;
-  if(notaDe(c)) t+=`\n${notaDe(c)}\n`;
+  let t=`*TOMIÑO F.C. VETERANOS*\n👉 Marca se vas: ${SITE}\n\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\n`;
+  if(notaDe(c)) t+=`${notaDe(c)}\n`;
   avisos(c).forEach(a=>t+="⚠️ "+a+"\n");
-  t+=`\n👉 Marca se vas: ${SITE}`;
+  t+=`\nComo chegar: ${c.maps}`;
   return t;
 }
 function waText(c){
   const pr=proposal(c), p=SHARED.partidos[c.fecha]||{}, hora=p.hora||c.hora;
   const s=n=>{ const e=av(c.fecha,n); return e==="tarde"?" (chega tarde)":e==="antes"?" (marcha antes)":""; };
-  let t=`*TOMIÑO F.C. VETERANOS*\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\nComo chegar: ${c.maps}\n`;
+  let t=`*TOMIÑO F.C. VETERANOS*\nConvocatoria: ${SITE}\n\nXornada ${c.jornada}: ${vsText(c)}\n${fmtD(c.fecha)}${hora?", "+hora+" h":""}\nCampo: ${c.campo}\nComo chegar: ${c.maps}\n`;
   if(notaDe(c)) t+=`\n${notaDe(c)}\n`;
   avisos(c).forEach(a=>t+="⚠️ "+a+"\n");
   t+=`\n*Convocados (${pr.inn.length})*\n`+pr.inn.slice().sort((a,b)=>(a.dorsal??999)-(b.dorsal??999)).map(j=>`${j.dorsal!=null?j.dorsal+". ":"- "}${corto(j.nombre)}${s(j.nombre)}`).join("\n");
   if(DATA.cuerpoTecnico.length) t+=`\n\nCorpo técnico: `+DATA.cuerpoTecnico.map(x=>corto(x.nombre)).join(", ");
   if(pr.out.length) t+=`\n\n*Descansan* (praza asegurada no próximo partido):\n`+pr.out.map(j=>"- "+corto(j.nombre)).join("\n");
-  t+=`\n\nMarca se vas: ${SITE}`;
   return t;
 }
 async function withPin(body,okMsg){
